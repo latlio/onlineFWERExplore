@@ -11,7 +11,11 @@ fluidPage(
       bs_set_opts(panel_type = "primary", use_heading_link = T) %>%
       bs_append(title = "Introduction", content = HTML("This application is designed to allow users to interactively run procedures that control the False Discovery Rate (FDR) for online hypothesis testing. Source code and additional information for this application are available via <a href=\"https://github.com/dsrobertson/onlineFDRGitHub\">GitHub</a>.")) %>%
       bs_append(title = "Application usage", content = p(
+<<<<<<< HEAD
         img(src = "user-diagram.png"), "For more information, check out the", a(href = "https://dsrobertson.github.io/onlineFDR/articles/onlineFDR.html", "Get Started"), "page in our vignette.")) %>%
+=======
+        img(src = "https://github.com/latlio/onlineFDRexplore/blob/master/www/user-diagram.png"), "For more information, check out the", a(href = "https://dsrobertson.github.io/onlineFDR/articles/onlineFDR.html", "Get Started"), "page in our vignette.")) %>%
+>>>>>>> dec3a838b00d9c8eecaa76e2ce66da92cb40d8c7
       bs_append(title = "Package dependencies & credits", p(
         "shinyWidgets",
         br(),
