@@ -7,7 +7,7 @@ html_document:
   self_contained: no
 ---
 ```{r, setup, include=FALSE}
-knitr::opts_knit$set(root.dir = '/Users/lathanliou/Desktop/Academic/Cambridge/BSU-job/onlineFDRShiny')
+knitr::opts_knit$set(root.dir = '/Users/lathanliou/Desktop/Academic/Cambridge/BSU-job/onlineFDRShiny/man')
 ```
 
 ```{r help, echo=FALSE, include = FALSE}
