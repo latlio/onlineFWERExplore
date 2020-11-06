@@ -8,11 +8,7 @@ html_document:
 ---
 
 ```{r, setup, include=FALSE}
-<<<<<<< HEAD
-knitr::opts_knit$set(root.dir = '/Users/lathanliou/Desktop/Academic/Cambridge/BSU-job/onlineFDRShiny/src')
-=======
-knitr::opts_knit$set(root.dir = '/Users/lathanliou/Desktop/Academic/Cambridge/BSU-job/onlineFDRShiny/man')
->>>>>>> dec3a838b00d9c8eecaa76e2ce66da92cb40d8c7
+knitr::opts_knit$set(root.dir = '/Users/lathanliou/Desktop/Academic/Cambridge/BSU-job/onlineFDRShiny')
 ```
 
 ```{r help, echo=FALSE, include = FALSE}
