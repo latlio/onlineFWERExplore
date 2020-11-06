@@ -20,10 +20,6 @@ server <- function(input, output, session) {
   Sys.sleep(0.5)
   waiter_hide()
   
-  #render user diagram
-  src = "https://github.com/latlio/onlineFDRexplore/blob/master/www/user-diagram.png"
-  output$diagram <- renderText({c('<img src="',src,'">')})
-  
   #Load in data
   in_data <- reactive({
     req(input$file)
