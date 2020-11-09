@@ -719,6 +719,30 @@ summaryUI <- function(id) {
   uiOutput(ns("count"))
 }
 
+compareUI <- function(id) {
+  ns <- NS(id)
+
+  tagList(
+    br(),
+    p("Make sure you already clicked Calculate. This feature compares the results of two algorithms. Parameters for the selected algorithm are assumed to be same as those for the current algorithm, otherwise they are set to the default values (see Code)."),
+    column(width = 12,
+           align = "center",
+           div(style = "display: inline-block;vertical-align:top;text-align:center",
+               strong("Pick an algorithm for comparison"),
+               shiny::selectInput(ns("alg"), NULL, c("LOND", "LORD2", "LORD3", "LORDdiscard", "LORDdep", "SAFFRON", "ADDIS")))),
+    shinyWidgets::actionBttn(
+      inputId = ns("compare"),
+      label = "Compare",
+      style = "fill",
+      color = "primary"
+    ),
+    br(),
+    plotlyOutput(ns("comp")) %>%
+      shinycssloaders::withSpinner(type = 6,
+                                   color = "#0066CC")
+  ) #close taglist
+}
+
 plotUI <- function(id) {
   ns <- NS(id)
   

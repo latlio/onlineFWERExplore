@@ -264,6 +264,55 @@ LONDplotServer <- function(input, output, session, LONDresult) {
   })
 }
 
+LONDcompServer <- function(input, output, session, LONDresult, data) {
+  select_alg <- function(alg, data) {
+    switch(alg,
+           LOND = LOND(data),
+           LORD2 = LORD(data),
+           LORD3 = LORD(data, version = 3),
+           LORDdiscard = LORD(data, version = "discard"),
+           LORDdep = LORD(data, version = "dep"),
+           SAFFRON = SAFFRON(data),
+           ADDIS = ADDIS(data))
+  }
+
+  data_to_plot <- eventReactive(input$compare, {
+    current_alg_data <- LONDresult$LONDres()
+    
+    select_alg_rx <- reactive({
+      out <- select_alg(alg = input$alg, data = data())
+    })
+    
+    select_alg_data <- select_alg_rx() %>%
+      rename(alphainew = alphai)
+    
+    data_to_plot <- cbind(current_alg_data, select_alg_data$alphainew) %>%
+      mutate(index = row_number(),
+             LOND = log(alphai),
+             !!rlang::quo_name(input$alg) := log(select_alg_data$alphainew),
+             Bonferroni = log(0.05/index),
+             Unadjusted = rep(log(0.05), nrow(.))) %>%
+      pivot_longer(cols = c(LOND, !!rlang::quo_name(input$alg), Bonferroni, Unadjusted),
+                   names_to = "adjustment",
+                   values_to = "alpha")
+  })
+  
+  output$comp <- renderPlotly({
+    if(!is.null(data_to_plot())) {
+      data_to_plot <- data_to_plot()
+      
+      font <- list(
+        family = "Lato"
+      )
+      ex <- list(title = "Index", titlefont = font)
+      why <- list(title = "Log adjusted test level", titlefont = font)
+      plot_ly(data_to_plot, x = ~index, y = ~alpha, color = ~adjustment) %>%
+        add_lines() %>%
+        layout(xaxis = ex, yaxis = why)
+    }
+  })
+}
+
 LORDServer <- function(input, output, session, data) {
   ns <- session$ns
   
@@ -564,6 +613,55 @@ LORDplotServer <- function(input, output, session, LORDresult) {
   })
 }
 
+LORDcompServer <- function(input, output, session, LORDresult, data) {
+  select_alg <- function(alg, data) {
+    switch(alg,
+           LOND = LOND(data),
+           LORD2 = LORD(data),
+           LORD3 = LORD(data, version = 3),
+           LORDdiscard = LORD(data, version = "discard"),
+           LORDdep = LORD(data, version = "dep"),
+           SAFFRON = SAFFRON(data),
+           ADDIS = ADDIS(data))
+  }
+  
+  data_to_plot <- eventReactive(input$compare, {
+    current_alg_data <- LORDresult$LORDres()
+    
+    select_alg_rx <- reactive({
+      out <- select_alg(alg = input$alg, data = data())
+    })
+    
+    select_alg_data <- select_alg_rx() %>%
+      rename(alphainew = alphai)
+    
+    data_to_plot <- cbind(current_alg_data, select_alg_data$alphainew) %>%
+      mutate(index = row_number(),
+             LOND = log(alphai),
+             !!rlang::quo_name(input$alg) := log(select_alg_data$alphainew),
+             Bonferroni = log(0.05/index),
+             Unadjusted = rep(log(0.05), nrow(.))) %>%
+      pivot_longer(cols = c(LOND, !!rlang::quo_name(input$alg), Bonferroni, Unadjusted),
+                   names_to = "adjustment",
+                   values_to = "alpha")
+  })
+  
+  output$comp <- renderPlotly({
+    if(!is.null(data_to_plot())) {
+      data_to_plot <- data_to_plot()
+      
+      font <- list(
+        family = "Lato"
+      )
+      ex <- list(title = "Index", titlefont = font)
+      why <- list(title = "Log adjusted test level", titlefont = font)
+      plot_ly(data_to_plot, x = ~index, y = ~alpha, color = ~adjustment) %>%
+        add_lines() %>%
+        layout(xaxis = ex, yaxis = why)
+    }
+  })
+}
+
 SAFFRONServer <- function(input, output, session, data) {
   ns <- session$ns
   
@@ -827,6 +925,55 @@ SAFFRONplotServer <- function(input, output, session, SAFFRONresult) {
   })
 }
 
+SAFFRONcompServer <- function(input, output, session, SAFFRONresult, data) {
+  select_alg <- function(alg, data) {
+    switch(alg,
+           LOND = LOND(data),
+           LORD2 = LORD(data),
+           LORD3 = LORD(data, version = 3),
+           LORDdiscard = LORD(data, version = "discard"),
+           LORDdep = LORD(data, version = "dep"),
+           SAFFRON = SAFFRON(data),
+           ADDIS = ADDIS(data))
+  }
+  
+  data_to_plot <- eventReactive(input$compare, {
+    current_alg_data <- SAFFRONresult$SAFFRONres()
+    
+    select_alg_rx <- reactive({
+      out <- select_alg(alg = input$alg, data = data())
+    })
+    
+    select_alg_data <- select_alg_rx() %>%
+      rename(alphainew = alphai)
+    
+    data_to_plot <- cbind(current_alg_data, select_alg_data$alphainew) %>%
+      mutate(index = row_number(),
+             LOND = log(alphai),
+             !!rlang::quo_name(input$alg) := log(select_alg_data$alphainew),
+             Bonferroni = log(0.05/index),
+             Unadjusted = rep(log(0.05), nrow(.))) %>%
+      pivot_longer(cols = c(LOND, !!rlang::quo_name(input$alg), Bonferroni, Unadjusted),
+                   names_to = "adjustment",
+                   values_to = "alpha")
+  })
+  
+  output$comp <- renderPlotly({
+    if(!is.null(data_to_plot())) {
+      data_to_plot <- data_to_plot()
+      
+      font <- list(
+        family = "Lato"
+      )
+      ex <- list(title = "Index", titlefont = font)
+      why <- list(title = "Log adjusted test level", titlefont = font)
+      plot_ly(data_to_plot, x = ~index, y = ~alpha, color = ~adjustment) %>%
+        add_lines() %>%
+        layout(xaxis = ex, yaxis = why)
+    }
+  })
+}
+
 ADDISServer <- function(input, output, session, data) {
   ns <- session$ns
   
@@ -1082,6 +1229,55 @@ ADDISplotServer <- function(input, output, session, ADDISresult) {
     plot_ly(new_data, x = ~index, y = ~alpha, color = ~adjustment) %>%
       add_lines() %>%
       layout(xaxis = ex, yaxis = why)
+  })
+}
+
+ADDIScompServer <- function(input, output, session, ADDISresult, data) {
+  select_alg <- function(alg, data) {
+    switch(alg,
+           LOND = LOND(data),
+           LORD2 = LORD(data),
+           LORD3 = LORD(data, version = 3),
+           LORDdiscard = LORD(data, version = "discard"),
+           LORDdep = LORD(data, version = "dep"),
+           SAFFRON = SAFFRON(data),
+           ADDIS = ADDIS(data))
+  }
+  
+  data_to_plot <- eventReactive(input$compare, {
+    current_alg_data <- ADDISresult$ADDISres()
+    
+    select_alg_rx <- reactive({
+      out <- select_alg(alg = input$alg, data = data())
+    })
+    
+    select_alg_data <- select_alg_rx() %>%
+      rename(alphainew = alphai)
+    
+    data_to_plot <- cbind(current_alg_data, select_alg_data$alphainew) %>%
+      mutate(index = row_number(),
+             LOND = log(alphai),
+             !!rlang::quo_name(input$alg) := log(select_alg_data$alphainew),
+             Bonferroni = log(0.05/index),
+             Unadjusted = rep(log(0.05), nrow(.))) %>%
+      pivot_longer(cols = c(LOND, !!rlang::quo_name(input$alg), Bonferroni, Unadjusted),
+                   names_to = "adjustment",
+                   values_to = "alpha")
+  })
+  
+  output$comp <- renderPlotly({
+    if(!is.null(data_to_plot())) {
+      data_to_plot <- data_to_plot()
+      
+      font <- list(
+        family = "Lato"
+      )
+      ex <- list(title = "Index", titlefont = font)
+      why <- list(title = "Log adjusted test level", titlefont = font)
+      plot_ly(data_to_plot, x = ~index, y = ~alpha, color = ~adjustment) %>%
+        add_lines() %>%
+        layout(xaxis = ex, yaxis = why)
+    }
   })
 }
 
@@ -1457,6 +1653,55 @@ alphainvestingplotServer <- function(input, output, session, alphainvestingresul
   })
 }
 
+alphainvestingcompServer <- function(input, output, session, alphainvestingresult, data) {
+  select_alg <- function(alg, data) {
+    switch(alg,
+           LOND = LOND(data),
+           LORD2 = LORD(data),
+           LORD3 = LORD(data, version = 3),
+           LORDdiscard = LORD(data, version = "discard"),
+           LORDdep = LORD(data, version = "dep"),
+           SAFFRON = SAFFRON(data),
+           ADDIS = ADDIS(data))
+  }
+  
+  data_to_plot <- eventReactive(input$compare, {
+    current_alg_data <- alphainvestingresult$alphainvestingres()
+    
+    select_alg_rx <- reactive({
+      out <- select_alg(alg = input$alg, data = data())
+    })
+    
+    select_alg_data <- select_alg_rx() %>%
+      rename(alphainew = alphai)
+    
+    data_to_plot <- cbind(current_alg_data, select_alg_data$alphainew) %>%
+      mutate(index = row_number(),
+             LOND = log(alphai),
+             !!rlang::quo_name(input$alg) := log(select_alg_data$alphainew),
+             Bonferroni = log(0.05/index),
+             Unadjusted = rep(log(0.05), nrow(.))) %>%
+      pivot_longer(cols = c(LOND, !!rlang::quo_name(input$alg), Bonferroni, Unadjusted),
+                   names_to = "adjustment",
+                   values_to = "alpha")
+  })
+  
+  output$comp <- renderPlotly({
+    if(!is.null(data_to_plot())) {
+      data_to_plot <- data_to_plot()
+      
+      font <- list(
+        family = "Lato"
+      )
+      ex <- list(title = "Index", titlefont = font)
+      why <- list(title = "Log adjusted test level", titlefont = font)
+      plot_ly(data_to_plot, x = ~index, y = ~alpha, color = ~adjustment) %>%
+        add_lines() %>%
+        layout(xaxis = ex, yaxis = why)
+    }
+  })
+}
+
 LONDSTARServer <- function(input, output, session, data) {
   ns <- session$ns
   
@@ -1662,6 +1907,55 @@ LONDSTARplotServer <- function(input, output, session, LONDSTARresult) {
     plot_ly(new_data, x = ~index, y = ~alpha, color = ~adjustment) %>%
       add_lines() %>%
       layout(xaxis = ex, yaxis = why)
+  })
+}
+
+LONDSTARcompServer <- function(input, output, session, LONDSTARresult, data) {
+  select_alg <- function(alg, data) {
+    switch(alg,
+           LOND = LOND(data),
+           LORD2 = LORD(data),
+           LORD3 = LORD(data, version = 3),
+           LORDdiscard = LORD(data, version = "discard"),
+           LORDdep = LORD(data, version = "dep"),
+           SAFFRON = SAFFRON(data),
+           ADDIS = ADDIS(data))
+  }
+  
+  data_to_plot <- eventReactive(input$compare, {
+    current_alg_data <- LONDSTARresult$LONDSTARres()
+    
+    select_alg_rx <- reactive({
+      out <- select_alg(alg = input$alg, data = data())
+    })
+    
+    select_alg_data <- select_alg_rx() %>%
+      rename(alphainew = alphai)
+    
+    data_to_plot <- cbind(current_alg_data, select_alg_data$alphainew) %>%
+      mutate(index = row_number(),
+             LOND = log(alphai),
+             !!rlang::quo_name(input$alg) := log(select_alg_data$alphainew),
+             Bonferroni = log(0.05/index),
+             Unadjusted = rep(log(0.05), nrow(.))) %>%
+      pivot_longer(cols = c(LOND, !!rlang::quo_name(input$alg), Bonferroni, Unadjusted),
+                   names_to = "adjustment",
+                   values_to = "alpha")
+  })
+  
+  output$comp <- renderPlotly({
+    if(!is.null(data_to_plot())) {
+      data_to_plot <- data_to_plot()
+      
+      font <- list(
+        family = "Lato"
+      )
+      ex <- list(title = "Index", titlefont = font)
+      why <- list(title = "Log adjusted test level", titlefont = font)
+      plot_ly(data_to_plot, x = ~index, y = ~alpha, color = ~adjustment) %>%
+        add_lines() %>%
+        layout(xaxis = ex, yaxis = why)
+    }
   })
 }
 
@@ -1871,7 +2165,7 @@ LORDSTARcountServer <- function(input, output, session, LORDSTARresult) {
 LORDSTARplotServer <- function(input, output, session, LORDSTARresult) {
   output$plot <- renderPlotly({
     #modify data
-    new_data <- LORDSTARresult$LORDsres() %>%
+    new_data <- LORDSTARresult$LORDSTARres() %>%
       mutate(index = row_number(),
              LORDstar = log(alphai),
              Bonferroni = log(0.05/index),
@@ -1888,6 +2182,55 @@ LORDSTARplotServer <- function(input, output, session, LORDSTARresult) {
     plot_ly(new_data, x = ~index, y = ~alpha, color = ~adjustment) %>%
       add_lines() %>%
       layout(xaxis = ex, yaxis = why)
+  })
+}
+
+LORDSTARcompServer <- function(input, output, session, LORDSTARresult, data) {
+  select_alg <- function(alg, data) {
+    switch(alg,
+           LOND = LOND(data),
+           LORD2 = LORD(data),
+           LORD3 = LORD(data, version = 3),
+           LORDdiscard = LORD(data, version = "discard"),
+           LORDdep = LORD(data, version = "dep"),
+           SAFFRON = SAFFRON(data),
+           ADDIS = ADDIS(data))
+  }
+  
+  data_to_plot <- eventReactive(input$compare, {
+    current_alg_data <- LORDSTARresult$LORDSTARres()
+    
+    select_alg_rx <- reactive({
+      out <- select_alg(alg = input$alg, data = data())
+    })
+    
+    select_alg_data <- select_alg_rx() %>%
+      rename(alphainew = alphai)
+    
+    data_to_plot <- cbind(current_alg_data, select_alg_data$alphainew) %>%
+      mutate(index = row_number(),
+             LOND = log(alphai),
+             !!rlang::quo_name(input$alg) := log(select_alg_data$alphainew),
+             Bonferroni = log(0.05/index),
+             Unadjusted = rep(log(0.05), nrow(.))) %>%
+      pivot_longer(cols = c(LOND, !!rlang::quo_name(input$alg), Bonferroni, Unadjusted),
+                   names_to = "adjustment",
+                   values_to = "alpha")
+  })
+  
+  output$comp <- renderPlotly({
+    if(!is.null(data_to_plot())) {
+      data_to_plot <- data_to_plot()
+      
+      font <- list(
+        family = "Lato"
+      )
+      ex <- list(title = "Index", titlefont = font)
+      why <- list(title = "Log adjusted test level", titlefont = font)
+      plot_ly(data_to_plot, x = ~index, y = ~alpha, color = ~adjustment) %>%
+        add_lines() %>%
+        layout(xaxis = ex, yaxis = why)
+    }
   })
 }
 
@@ -2154,5 +2497,54 @@ SAFFRONSTARplotServer <- function(input, output, session, SAFFRONSTARresult) {
     plot_ly(new_data, x = ~index, y = ~alpha, color = ~adjustment) %>%
       add_lines() %>%
       layout(xaxis = ex, yaxis = why)
+  })
+}
+
+SAFFRONSTARcompServer <- function(input, output, session, SAFFRONSTARresult, data) {
+  select_alg <- function(alg, data) {
+    switch(alg,
+           LOND = LOND(data),
+           LORD2 = LORD(data),
+           LORD3 = LORD(data, version = 3),
+           LORDdiscard = LORD(data, version = "discard"),
+           LORDdep = LORD(data, version = "dep"),
+           SAFFRON = SAFFRON(data),
+           ADDIS = ADDIS(data))
+  }
+  
+  data_to_plot <- eventReactive(input$compare, {
+    current_alg_data <- SAFFRONSTARresult$SAFFRONSTARres()
+    
+    select_alg_rx <- reactive({
+      out <- select_alg(alg = input$alg, data = data())
+    })
+    
+    select_alg_data <- select_alg_rx() %>%
+      rename(alphainew = alphai)
+    
+    data_to_plot <- cbind(current_alg_data, select_alg_data$alphainew) %>%
+      mutate(index = row_number(),
+             LOND = log(alphai),
+             !!rlang::quo_name(input$alg) := log(select_alg_data$alphainew),
+             Bonferroni = log(0.05/index),
+             Unadjusted = rep(log(0.05), nrow(.))) %>%
+      pivot_longer(cols = c(LOND, !!rlang::quo_name(input$alg), Bonferroni, Unadjusted),
+                   names_to = "adjustment",
+                   values_to = "alpha")
+  })
+  
+  output$comp <- renderPlotly({
+    if(!is.null(data_to_plot())) {
+      data_to_plot <- data_to_plot()
+      
+      font <- list(
+        family = "Lato"
+      )
+      ex <- list(title = "Index", titlefont = font)
+      why <- list(title = "Log adjusted test level", titlefont = font)
+      plot_ly(data_to_plot, x = ~index, y = ~alpha, color = ~adjustment) %>%
+        add_lines() %>%
+        layout(xaxis = ex, yaxis = why)
+    }
   })
 }
