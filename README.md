@@ -6,6 +6,5 @@ A Shiny app to explore online FDR control for your dataset post-hoc.
 
 ![](https://github.com/latlio/onlineFDRexplore/blob/master/www/user-diagram.png)
 
-## Data
-
-## Deployment
+## Background behind algorithms
+For more information, please visit our [vignette](https://dsrobertson.github.io/onlineFDR/articles/onlineFDR.html)!
