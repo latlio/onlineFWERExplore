@@ -67,43 +67,44 @@ fluidPage(
                    icon = icon("check"),
                    status = "info")
   ),
-  hidden(
+  shinyjs::hidden(
     div(
-    id = "novice",
-    fluidRow(
-      h1("Which algorithm do I use?"),
-      "Use the following demo to inform which algorithm is most appropriate to use.
+      id = "novice",
+      fluidRow(
+        h1("Which algorithm do I use?"),
+        "Use the following demo to inform which algorithm is most appropriate to use.
     Pick a sample size that is closest to the size of your data and a proportion of expected non-null
     hypotheses. Text will populate that reports which algorithm will have the highest power given
     your specified parameters. Please then proceed to upload your dataset as a CSV file.",
-      p("For more information, use the", a(href = "https://dsrobertson.github.io/onlineFDR/articles/onlineFDR.html#which-function-do-i-use-", "flowchart"), "to help determine which algorithm to use."),
-      br(),
-      br(),
-      column(4,
-             strong("Sample size"),
-             shinyWidgets::radioGroupButtons("size", NULL, c(50, 100, 1000))
+        p("For more information, use the", a(href = "https://dsrobertson.github.io/onlineFDR/articles/onlineFDR.html#which-function-do-i-use-", "flowchart"), "to help determine which algorithm to use."),
+        br(),
+        br(),
+        column(4,
+               strong("Sample size"),
+               shinyWidgets::radioGroupButtons("size", NULL, c(50, 100, 1000))
+        ),
+        column(4,
+               strong("Proportion"),
+               shiny::sliderInput("prop", NULL, min = 0.1, max = 1, value = 0.5, step = 0.1),
+               shinyBS::bsTooltip("prop",
+                                  "Proportion of true non-null hypotheses",
+                                  placement = "right",
+                                  trigger = "hover")
+        ),
+        column(4,
+               align = "right",
+               strong("Bound status"),
+               shinyWidgets::radioGroupButtons("bound", NULL, c("Bounded", "Unbounded"))
+        )
       ),
-      column(4,
-             strong("Proportion"),
-             shiny::sliderInput("prop", NULL, min = 0.1, max = 1, value = 0.5, step = 0.1),
-             shinyBS::bsTooltip("prop",
-                                "Proportion of true non-null hypotheses",
-                                placement = "right",
-                                trigger = "hover")
-      ),
-      column(4,
-             strong("Bound status"),
-             shinyWidgets::radioGroupButtons("bound", NULL, c("Bounded", "Unbounded"))
-      )
-    ),
-    fluidRow(
-      column(width = 12,
-             align = "center",
-             boxPlus(
-               title = "Your recommended algorithm", 
-               closable = FALSE, 
-               width = NULL,
-               status = "primary", 
+      fluidRow(
+        column(width = 12,
+               align = "center",
+               boxPlus(
+                 title = "Your recommended algorithm", 
+                 closable = FALSE, 
+                 width = NULL,
+                 status = "primary", 
                solidHeader = FALSE, 
                background = "aqua",
                collapsible = TRUE,
@@ -114,24 +115,24 @@ fluidPage(
                  dropdownItem(url = "#", name = "User Flowchart"),
                ),
                p(textOutput("demores"))
-             )
-      )
-    ),
-    tags$head(tags$style("#demores{font-size: 18px;
+               )
+        )
+      ),
+      tags$head(tags$style("#demores{font-size: 18px;
                          font-family: Arial;
                          text-align: center;")),
-    br(),
-    textOutput("saffronwarn"),
-    tags$head(tags$style("#saffronwarn{font-size: 14px;
+      br(),
+      textOutput("saffronwarn"),
+      tags$head(tags$style("#saffronwarn{font-size: 14px;
                          font-family: Arial;
                          text-align: center;
                          color: red")),
-    textOutput("addiswarn"),
-    tags$head(tags$style("#addiswarn{font-size: 14px;
+      textOutput("addiswarn"),
+      tags$head(tags$style("#addiswarn{font-size: 14px;
                          font-family: Arial;
                          text-align: center;
                          color: red"))
-    
+      
     ) #close div
   ), #close hidden
   br(),

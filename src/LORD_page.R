@@ -42,9 +42,9 @@ border-top-color:#ffffff;
                                   placeholder2UI("inputLORD"),
                                   plotUI("LORDplot")),
                   shiny::tabPanel("Compare",
-                                  compareUI("LORDcomp")),
-                  shiny::tabPanel("Code", withMathJax(),
-                                  HTML(markdown::markdownToHTML(knit("./src/LORD_code.Rmd", quiet = T))))
+                                  compareUI("LORDcomp"))
+                  # shiny::tabPanel("Code", withMathJax(),
+                  #                 HTML(markdown::markdownToHTML(knit("./src/LORD_code.Rmd", quiet = T))))
                 ) ## close tabset panel
                 
   ) ## close column

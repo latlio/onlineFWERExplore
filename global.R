@@ -12,7 +12,7 @@ library(shinycssloaders) #custom loading icons
 library(shinyjs) #improved user exp
 library(shinyBS) #custom widgets
 library(bsplus)
-library(shinyalert) 
+# library(shinyalert) 
 library(shinyFeedback) #for user feedback messages
 library(tippy) #for hovers
 # library(highcharter) #for animated plots
@@ -26,14 +26,16 @@ library(shinydashboardPlus)
 
 # 2. Data Manipulation
 library(tidyverse)
+library(dplyr)
 library(lubridate)
 # library(reactable)
 
 #make sure github dev version is installed
+# devtools::install_github("https://github.com/dsrobertson/onlineFDR")
+library(StanHeaders)
 library(onlineFDR)
 
 source("ui.R")
 source("server.R")
 
-runApp(shinyApp(ui, server), launch.browser = TRUE)
-
+# runApp(shinyApp(ui, server), launch.browser = TRUE)
