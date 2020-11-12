@@ -55,7 +55,14 @@ server <- function(input, output, session) {
     req(input$file)
 
     ext <- tools::file_ext(input$file$name)
-    validate(need(ext == "csv", "Please upload a csv file!"))
+    validate(need(ext %in% c(
+      'text/csv',
+      'text/comma-separated-values',
+      'text/tab-separated-values',
+      'text/plain',
+      'csv',
+      'tsv'), 
+      "Please upload a csv file!"))
 
     data <- read_csv(input$file$datapath) %>%
       dplyr::mutate(across(any_of("date"), ~as.Date(.x, format = "%m/%d/%y")))
