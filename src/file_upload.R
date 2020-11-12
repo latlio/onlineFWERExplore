@@ -111,8 +111,8 @@ fluidPage(
                enable_dropdown = TRUE,
                dropdown_icon = "wrench",
                dropdown_menu = dropdownItemList(
-                 dropdownItem(url = "#", name = "More information"),
-                 dropdownItem(url = "#", name = "User Flowchart"),
+                 dropdownItem(url = "https://dsrobertson.github.io/onlineFDR/articles/onlineFDR.html", name = "More information"),
+                 dropdownItem(url = "https://dsrobertson.github.io/onlineFDR/articles/onlineFDR.html#which-function-do-i-use-", name = "User Flowchart"),
                ),
                p(textOutput("demores"))
                )
