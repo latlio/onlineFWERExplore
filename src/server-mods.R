@@ -815,17 +815,17 @@ SAFFRONServer <- function(input, output, session, data) {
   # })
   output$download <- downloadHandler(
     filename = function() {
-      paste("LORD-", Sys.Date(), ".csv", sep = "")
+      paste("SAFFRON-", Sys.Date(), ".csv", sep = "")
     },
     content = function(file) {
-      write_csv(LORDres(), file)
+      write_csv(SAFFRONres(), file)
     }
   )
   
   #download params
   output$download2 <- downloadHandler(
     filename = function() {
-      paste("LONDparams-", Sys.Date(), ".csv", sep = "")
+      paste("SAFFRONparams-", Sys.Date(), ".csv", sep = "")
     },
     content = function(file) {
       write_csv(user_params(), file)
@@ -1124,17 +1124,17 @@ ADDISServer <- function(input, output, session, data) {
 
   output$download <- downloadHandler(
     filename = function() {
-      paste("LORD-", Sys.Date(), ".csv", sep = "")
+      paste("ADDIS-", Sys.Date(), ".csv", sep = "")
     },
     content = function(file) {
-      write_csv(LORDres(), file)
+      write_csv(ADDISres(), file)
     }
   )
   
   #download params
   output$download2 <- downloadHandler(
     filename = function() {
-      paste("LONDparams-", Sys.Date(), ".csv", sep = "")
+      paste("ADDISparams-", Sys.Date(), ".csv", sep = "")
     },
     content = function(file) {
       write_csv(user_params(), file)
@@ -1431,17 +1431,17 @@ ADDISaServer <- function(input, output, session, data) {
   
   output$download <- downloadHandler(
     filename = function() {
-      paste("LORD-", Sys.Date(), ".csv", sep = "")
+      paste("ADDISasync-", Sys.Date(), ".csv", sep = "")
     },
     content = function(file) {
-      write_csv(LORDres(), file)
+      write_csv(ADDISares(), file)
     }
   )
   
   #download params
   output$download2 <- downloadHandler(
     filename = function() {
-      paste("LONDparams-", Sys.Date(), ".csv", sep = "")
+      paste("ADDISasyncparams-", Sys.Date(), ".csv", sep = "")
     },
     content = function(file) {
       write_csv(user_params(), file)
@@ -1545,17 +1545,17 @@ alphainvestingServer <- function(input, output, session, data) {
   
   output$download <- downloadHandler(
     filename = function() {
-      paste("LORD-", Sys.Date(), ".csv", sep = "")
+      paste("alphainvesting-", Sys.Date(), ".csv", sep = "")
     },
     content = function(file) {
-      write_csv(LORDres(), file)
+      write_csv(alphainvestingres(), file)
     }
   )
   
   #download params
   output$download2 <- downloadHandler(
     filename = function() {
-      paste("LONDparams-", Sys.Date(), ".csv", sep = "")
+      paste("alphainvestingparams-", Sys.Date(), ".csv", sep = "")
     },
     content = function(file) {
       write_csv(user_params(), file)
@@ -1802,17 +1802,17 @@ LONDSTARServer <- function(input, output, session, data) {
   
   output$download <- downloadHandler(
     filename = function() {
-      paste("LORD-", Sys.Date(), ".csv", sep = "")
+      paste("LONDSTAR-", Sys.Date(), ".csv", sep = "")
     },
     content = function(file) {
-      write_csv(LORDres(), file)
+      write_csv(LONDSTARres(), file)
     }
   )
   
   #download params
   output$download2 <- downloadHandler(
     filename = function() {
-      paste("LONDparams-", Sys.Date(), ".csv", sep = "")
+      paste("LONDSTARparams-", Sys.Date(), ".csv", sep = "")
     },
     content = function(file) {
       write_csv(user_params(), file)
@@ -2077,17 +2077,17 @@ LORDSTARServer <- function(input, output, session, data) {
   
   output$download <- downloadHandler(
     filename = function() {
-      paste("LORD-", Sys.Date(), ".csv", sep = "")
+      paste("LORDSTAR-", Sys.Date(), ".csv", sep = "")
     },
     content = function(file) {
-      write_csv(LORDres(), file)
+      write_csv(LORDSTARres(), file)
     }
   )
   
   #download params
   output$download2 <- downloadHandler(
     filename = function() {
-      paste("LONDparams-", Sys.Date(), ".csv", sep = "")
+      paste("LORDSTARparams-", Sys.Date(), ".csv", sep = "")
     },
     content = function(file) {
       write_csv(user_params(), file)
@@ -2392,17 +2392,17 @@ SAFFRONSTARServer <- function(input, output, session, data) {
   
   output$download <- downloadHandler(
     filename = function() {
-      paste("LORD-", Sys.Date(), ".csv", sep = "")
+      paste("SAFFRONSTAR-", Sys.Date(), ".csv", sep = "")
     },
     content = function(file) {
-      write_csv(LORDres(), file)
+      write_csv(SAFFRONSTARres(), file)
     }
   )
   
   #download params
   output$download2 <- downloadHandler(
     filename = function() {
-      paste("LONDparams-", Sys.Date(), ".csv", sep = "")
+      paste("SAFFRONSTARparams-", Sys.Date(), ".csv", sep = "")
     },
     content = function(file) {
       write_csv(user_params(), file)
