@@ -13,44 +13,7 @@ fluidPage(
       bs_append(title = "Application usage", content = p(
         a(href = "https://github.com/latlio/onlineFDRexplore/blob/master/www/user-diagram.png", "View user diagram"),
         br(),
-        "For more information, check out the", a(href = "https://dsrobertson.github.io/onlineFDR/articles/onlineFDR.html", "Get Started"), "page in our vignette.")) %>%
-      bs_append(title = "Package dependencies & credits", p(
-        "shinyWidgets",
-        br(),
-        "shinycssloaders",
-        br(),
-        "shinyjs",
-        br(),
-        "shinyBS",
-        br(),
-        "bsplus",
-        br(),
-        "shinyalert",
-        br(),
-        "shinyFeedback",
-        br(),
-        "shinydashboard",
-        br(),
-        "shinydashboardPlus",
-        br(),
-        "tippy",
-        br(),
-        "waiter",
-        br(),
-        "sever",
-        br(),
-        br(),
-        "tidyverse",
-        br(),
-        "lubridate",
-        br(),
-        "knitr",
-        br(),
-        "reactable",
-        br(),
-        "highcharter",
-        style = "font-family: 'Consolas'")
-      ) %>%
+        "For more information, check out the", a(href = "https://dsrobertson.github.io/onlineFDR/articles/onlineFDR.html", "Get Started"), "page in our vignette."))  %>%
       bs_append(title = "Help & feedback", content = HTML("For additional help or to submit feedback or bug reports,
        please contact: <br>
        David Robertson <br>
@@ -137,7 +100,8 @@ fluidPage(
   ), #close hidden
   br(),
   fluidRow(
-    h1("Choose a CSV file"),
+    h1("Upload your dataset"),
+    p("Ensure that your CSV file contains at the minimum, a column of p-values with the name 'pval'. If you're including dates, ensure that they are in the format YYYY-MM-DD. "),
     fileInput("file", NULL,
               multiple = FALSE,
               accept = c('text/csv', 

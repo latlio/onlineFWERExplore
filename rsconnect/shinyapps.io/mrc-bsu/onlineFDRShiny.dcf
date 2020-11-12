@@ -1,0 +1,13 @@
+name: onlineFDRShiny
+title: onlineFDRShiny
+username:
+account: mrc-bsu
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 3218124
+bundleId: 3852282
+url: https://mrc-bsu.shinyapps.io/onlineFDRShiny/
+when: 1605191537.47902
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: .Rprofile
