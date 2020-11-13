@@ -46,7 +46,7 @@ ui <- shiny::fluidPage(
     waiter::use_waiter(),
     sever::use_sever(),
     waiter::waiter_show_on_load(html = tagList(waiter::spin_fading_circles(),
-                                               "Initializing onlineFDR")),
+                                               "Initializing onlineFDRExplore")),
     tags$head(
       tags$script(src = "src/JSModule.js"),
       tags$style(HTML("

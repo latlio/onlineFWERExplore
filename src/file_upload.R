@@ -105,7 +105,8 @@ fluidPage(
     fileInput("file", NULL,
               multiple = FALSE,
               accept = c('text/csv', 
-                         'text/comma-separated-values,text/plain',
+                         'text/comma-separated-values',
+                         'text/plain',
                          '.csv'))
   )
 ) #close fluidpage

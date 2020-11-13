@@ -72,6 +72,11 @@ LONDServer <- function(input, output, session, data) {
     return(out)
   }) #close eventReactive
   
+  #toggle advanced options
+  observe({
+    toggle(id = "advopt", condition = input$checkbox)
+  })
+  
   #record user params
   user_params <- reactive({
     params <- reactiveValuesToList(input)
@@ -453,6 +458,10 @@ LORDServer <- function(input, output, session, data) {
     output
   })
   
+  observe({
+    toggle(id = "advopt", condition = input$checkbox)
+  })
+  
   # remove placeholder text
   observeEvent(input$go, {
     if(input$go == 0){
@@ -753,6 +762,10 @@ SAFFRONServer <- function(input, output, session, data) {
     shiny::removeModal()
     
     output
+  })
+  
+  observe({
+    toggle(id = "advopt", condition = input$checkbox)
   })
   
   #record user params
@@ -1063,6 +1076,10 @@ ADDISServer <- function(input, output, session, data) {
     output
   })
   
+  observe({
+    toggle(id = "advopt", condition = input$checkbox)
+  })
+  
   #record user params
   user_params <- reactive({
     params <- reactiveValuesToList(input)
@@ -1370,6 +1387,10 @@ ADDISaServer <- function(input, output, session, data) {
     output
   })
   
+  observe({
+    toggle(id = "advopt", condition = input$checkbox)
+  })
+  
   #record user params
   user_params <- reactive({
     params <- reactiveValuesToList(input)
@@ -1503,6 +1524,10 @@ alphainvestingServer <- function(input, output, session, data) {
     shiny::removeModal()
     
     output
+  })
+  
+  observe({
+    toggle(id = "advopt", condition = input$checkbox)
   })
   
   #record user params
@@ -2013,6 +2038,10 @@ LORDSTARServer <- function(input, output, session, data) {
     output
   })
   
+  observe({
+    toggle(id = "advopt", condition = input$checkbox)
+  })
+  
   #record user params
   user_params <- reactive({
     params <- reactiveValuesToList(input)
@@ -2326,6 +2355,10 @@ SAFFRONSTARServer <- function(input, output, session, data) {
     shiny::removeModal()
     
     output
+  })
+  
+  observe({
+    toggle(id = "advopt", condition = input$checkbox)
   })
   
   #record user params

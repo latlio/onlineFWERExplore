@@ -55,7 +55,7 @@ server <- function(input, output, session) {
     req(input$file)
 
     ext <- tools::file_ext(input$file$name)
-    validate(need(ext %in% c(
+    shiny::validate(need(ext %in% c(
       'text/csv',
       'text/comma-separated-values',
       'text/tab-separated-values',
