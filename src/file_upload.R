@@ -85,11 +85,11 @@ fluidPage(
                          font-family: Arial;
                          text-align: center;")),
       br(),
-      textOutput("saffronwarn"),
-      tags$head(tags$style("#saffronwarn{font-size: 14px;
-                         font-family: Arial;
-                         text-align: center;
-                         color: red")),
+      # textOutput("saffronwarn"),
+      # tags$head(tags$style("#saffronwarn{font-size: 14px;
+      #                    font-family: Arial;
+      #                    text-align: center;
+      #                    color: red")),
       textOutput("addiswarn"),
       tags$head(tags$style("#addiswarn{font-size: 14px;
                          font-family: Arial;

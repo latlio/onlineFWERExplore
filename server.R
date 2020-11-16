@@ -150,13 +150,11 @@ server <- function(input, output, session) {
           pull(procedure), "has the highest power.")
   })
   
-  output$saffronwarn <- renderText({
-    if(input$size == 50 & input$prop >= 0.5 | 
-       input$size == 100 & input$prop >= 0.5 | 
-       input$size == 1000 & input$prop > 0.5) {
-      paste("Using SAFFRON may overestimate the FDR.")
-    }
-  })
+  # output$saffronwarn <- renderText({
+  #   if(input$size == 1000 & input$prop > 0.5) {
+  #     paste("Using SAFFRON may overestimate the FDR.")
+  #   }
+  # })
   
   output$addiswarn <- renderText({
     if(input$size == 100 & input$prop == 0.4 | 
