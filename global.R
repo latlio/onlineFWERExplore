@@ -20,6 +20,7 @@ library(plotly)
 library(waiter) #for loading screen
 library(sever) #for waiting screen
 library(knitr)
+library(rmarkdown)
 library(shinydashboard)
 library(shinydashboardPlus)
 # library(shinyanimate)
