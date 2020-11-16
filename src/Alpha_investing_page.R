@@ -42,9 +42,9 @@ border-top-color:#ffffff;
                                   placeholder2UI("inputalphainvesting"),
                                   plotUI("alphainvestplot")),
                   shiny::tabPanel("Compare",
-                                  compareUI("alphainvestcomp"))
-                  # shiny::tabPanel("Code", withMathJax(),
-                  #                 HTML(markdown::markdownToHTML(knit("./src/alphainvesting_code.Rmd", quiet = T))))
+                                  compareUI("alphainvestcomp")),
+                  shiny::tabPanel("Help", withMathJax(),
+                                  HTML(markdown::markdownToHTML(knit("src/alphainvesting_code.Rmd", quiet = T))))
                 ) ## close tabset panel
                 
   ) ## close column

@@ -12,7 +12,7 @@ html_document:
 ```
 
 ```{r help, echo=FALSE, include = FALSE}
-source("src/utils.R")
+source("utils.R")
 library(knitr)
 library(onlineFDR)
 saved = help_console(LORD, "html", before = "", after = "")

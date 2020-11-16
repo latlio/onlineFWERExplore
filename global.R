@@ -5,6 +5,9 @@
 # Created: Fri Sep 18 09:58:34 2020 ------------------------------
 ################################################################################
 
+#clear before deplyment
+rm(list = ls())
+
 # 1. Shiny ----
 library(shiny)
 library(shinyWidgets) #custom widgets, allows for shinydashboard elements
@@ -21,6 +24,7 @@ library(waiter) #for loading screen
 library(sever) #for waiting screen
 library(knitr)
 library(rmarkdown)
+library(markdown)
 library(shinydashboard)
 library(shinydashboardPlus)
 # library(shinyanimate)
@@ -39,4 +43,4 @@ library(onlineFDR)
 source("ui.R")
 source("server.R")
 
-runApp(shinyApp(ui, server), launch.browser = TRUE)
+# runApp(shinyApp(ui, server), launch.browser = TRUE)

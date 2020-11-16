@@ -41,9 +41,9 @@ border-top-color:#ffffff;
                                   placeholder2UI("inputSAFFRON"),
                                   plotUI("SAFFRONplot")),
                   shiny::tabPanel("Compare",
-                                  compareUI("SAFFRONcomp"))
-                  # shiny::tabPanel("Code", withMathJax(),
-                  #                 HTML(markdown::markdownToHTML(knit("./src/SAFFRON_code.Rmd", quiet = T))))
+                                  compareUI("SAFFRONcomp")),
+                  shiny::tabPanel("Code", withMathJax(),
+                                  HTML(markdown::markdownToHTML(knit("src/SAFFRON_code.Rmd", quiet = T))))
                 ) ## close tabset panel
                 
   ) ## close column

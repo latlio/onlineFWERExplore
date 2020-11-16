@@ -42,9 +42,9 @@ border-top-color:#ffffff;
                                   placeholder2UI("inputLONDSTAR"),
                                   plotUI("LONDSTARplot")),
                   shiny::tabPanel("Compare",
-                                  compareUI("LONDSTARcomp"))
-                  # shiny::tabPanel("Code", withMathJax(),
-                  #                 HTML(markdown::markdownToHTML(knit("./src/LONDstar_code.Rmd", quiet = T))))
+                                  compareUI("LONDSTARcomp")),
+                  shiny::tabPanel("Code", withMathJax(),
+                                  HTML(markdown::markdownToHTML(knit("src/LONDstar_code.Rmd", quiet = T))))
                 ) ## close tabset panel
                 
   ) ## close column
