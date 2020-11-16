@@ -199,6 +199,7 @@ LONDcountServer <- function(input, output, session, LONDresult) {
   #toggle download button
   observe({
     toggle(id = "downloadbutton")
+    # shinyanimate::startAnim(session, "downloadbutton", "fadeInDown")
   })
   
   output$count <- renderUI({  

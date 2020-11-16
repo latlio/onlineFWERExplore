@@ -766,6 +766,7 @@ summaryUI <- function(id) {
   ns <- NS(id)
   tagList(
     useShinyjs(),
+    # shinyanimate::withAnim(),
     shinyjs::hidden(
       div(
         id = ns("downloadbutton"),
