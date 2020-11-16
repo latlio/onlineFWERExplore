@@ -99,6 +99,7 @@ LONDServer <- function(input, output, session, data) {
       shinyjs::hide(id = "placeholder2")
     }
   })
+
   
   # observeEvent(input$go, {
   #   startAnim(session, "test", "shake")
@@ -139,16 +140,6 @@ LONDServer <- function(input, output, session, data) {
   #     global$response <- FALSE
   #   }
   # })
-  
-  #download results
-  output$download <- downloadHandler(
-    filename = function() {
-      paste("LOND-", Sys.Date(), ".csv", sep = "")
-    },
-    content = function(file) {
-      write_csv(LONDres(), file)
-    }
-  )
   
   #download params
   output$download2 <- downloadHandler(
@@ -204,13 +195,27 @@ LONDtableServer <- function(input, output, session, LONDresult) {
 }
 
 LONDcountServer <- function(input, output, session, LONDresult) {
-  output$count <- renderUI({
+  ns <- session$ns
+  #toggle download button
+  observe({
+    toggle(id = "downloadbutton")
+  })
+  
+  output$count <- renderUI({  
+    
     data <- LONDresult$LONDres()
     if(sum(data$R) == 1) {
       div(
-        id = "test",
         set_html_breaks(10),
-        paste0("1 null hypothesis was rejected"),
+        paste0("1 null hypothesis was rejected. See full results by downloading below"),
+        set_html_breaks(2),
+        shinyWidgets::downloadBttn(
+          outputId = ns("download"),
+          label = "Download results",
+          style = "fill",
+          color = "primary",
+          size = "sm"
+        ),
         style = "text-align: center;
     vertical-align: middle;
     font-family: Poppins, sans-serif;
@@ -218,16 +223,36 @@ LONDcountServer <- function(input, output, session, LONDresult) {
       )
     } else {
       div(
-        id = "test2",
         set_html_breaks(10),
-        paste0(sum(data$R), " null hypotheses were rejected"),
+        paste0(sum(data$R), " null hypotheses were rejected. See full results by downloading below"),
+        set_html_breaks(2),
+        shinyWidgets::downloadBttn(
+          outputId = ns("download"),
+          label = "Download results",
+          style = "fill",
+          color = "primary",
+          size = "sm"
+        ),
         style = "text-align: center;
-    vertical-align: middle;
-    font-family: Poppins, sans-serif;
-    font-size: 18px"
+        vertical-align: middle;
+        font-family: Poppins, sans-serif;
+        font-size: 18px;
+        .shiny-download-link{
+        width: 250px;
+        }
+        "
       )
     }
   })
+  
+  output$download <- downloadHandler(
+    filename = function() {
+      paste("LOND-", Sys.Date(), ".csv", sep = "")
+    },
+    content = function(file) {
+      write_csv(LONDresult$LONDres(), file)
+    }
+  )
 }
 
 LONDplotServer <- function(input, output, session, LONDresult) {
@@ -273,7 +298,7 @@ LONDcompServer <- function(input, output, session, LONDresult, data) {
   select_alg <- function(alg, data) {
     switch(alg,
            LOND = LOND(data),
-           LORD2 = LORD(data),
+           LORD = LORD(data),
            LORD3 = LORD(data, version = 3),
            LORDdiscard = LORD(data, version = "discard"),
            LORDdep = LORD(data, version = "dep"),
@@ -288,13 +313,12 @@ LONDcompServer <- function(input, output, session, LONDresult, data) {
       out <- select_alg(alg = input$alg, data = data())
     })
     
-    select_alg_data <- select_alg_rx() %>%
-      rename(alphainew = alphai)
+    select_alg_data <- select_alg_rx()
     
-    data_to_plot <- cbind(current_alg_data, select_alg_data$alphainew) %>%
+    data_to_plot <- cbind(current_alg_data, select_alg_data$alphai) %>%
       mutate(index = row_number(),
              LOND = log(alphai),
-             !!rlang::quo_name(input$alg) := log(select_alg_data$alphainew),
+             !!rlang::quo_name(input$alg) := log(select_alg_data$alphai),
              Bonferroni = log(0.05/index),
              Unadjusted = rep(log(0.05), nrow(.))) %>%
       pivot_longer(cols = c(LOND, !!rlang::quo_name(input$alg), Bonferroni, Unadjusted),
@@ -316,6 +340,31 @@ LONDcompServer <- function(input, output, session, LONDresult, data) {
         layout(xaxis = ex, yaxis = why)
     }
   })
+
+  #to make compnum reactive
+  select_alg_data <- eventReactive(input$compare, {
+    out <- select_alg(alg = input$alg, data = data())
+  })
+  
+  output$compnum <- renderUI({
+    if(!is.null(select_alg_data())) {
+      select_alg_data <- select_alg_data()
+      current_alg_data <- LONDresult$LONDres()
+      
+      div(
+        p(
+          paste0("LOND rejected ", sum(current_alg_data$R), " null hypotheses.")
+        ),
+        p(
+          paste0(input$alg, " rejected ", sum(select_alg_data$R), " null hypotheses.")
+        ),
+        style = "text-align: center;
+    vertical-align: middle;
+    font-family: Poppins, sans-serif;
+    font-size: 18px"
+      ) #close div
+    }
+    })
 }
 
 LORDServer <- function(input, output, session, data) {
@@ -572,13 +621,27 @@ LORDtableServer <- function(input, output, session, LORDresult) {
 }
 
 LORDcountServer <- function(input, output, session, LORDresult) {
-  output$count <- renderUI({
+  ns <- session$ns
+  #toggle download button
+  observe({
+    toggle(id = "downloadbutton")
+  })
+  
+  output$count <- renderUI({  
+    
     data <- LORDresult$LORDres()
     if(sum(data$R) == 1) {
       div(
-        id = "test",
         set_html_breaks(10),
-        paste0("1 null hypothesis was rejected"),
+        paste0("1 null hypothesis was rejected. See full results by downloading below"),
+        set_html_breaks(2),
+        shinyWidgets::downloadBttn(
+          outputId = ns("download"),
+          label = "Download results",
+          style = "fill",
+          color = "primary",
+          size = "sm"
+        ),
         style = "text-align: center;
     vertical-align: middle;
     font-family: Poppins, sans-serif;
@@ -586,16 +649,36 @@ LORDcountServer <- function(input, output, session, LORDresult) {
       )
     } else {
       div(
-        id = "test2",
         set_html_breaks(10),
-        paste0(sum(data$R), " null hypotheses were rejected"),
+        paste0(sum(data$R), " null hypotheses were rejected. See full results by downloading below"),
+        set_html_breaks(2),
+        shinyWidgets::downloadBttn(
+          outputId = ns("download"),
+          label = "Download results",
+          style = "fill",
+          color = "primary",
+          size = "sm"
+        ),
         style = "text-align: center;
-    vertical-align: middle;
-    font-family: Poppins, sans-serif;
-    font-size: 18px"
+        vertical-align: middle;
+        font-family: Poppins, sans-serif;
+        font-size: 18px;
+        .shiny-download-link{
+        width: 250px;
+        }
+        "
       )
     }
   })
+  
+  output$download <- downloadHandler(
+    filename = function() {
+      paste("LORD-", Sys.Date(), ".csv", sep = "")
+    },
+    content = function(file) {
+      write_csv(LORDresult$LORDres(), file)
+    }
+  )
 }
 
 LORDplotServer <- function(input, output, session, LORDresult) {
@@ -646,11 +729,11 @@ LORDcompServer <- function(input, output, session, LORDresult, data) {
     
     data_to_plot <- cbind(current_alg_data, select_alg_data$alphainew) %>%
       mutate(index = row_number(),
-             LOND = log(alphai),
+             LORD = log(alphai),
              !!rlang::quo_name(input$alg) := log(select_alg_data$alphainew),
              Bonferroni = log(0.05/index),
              Unadjusted = rep(log(0.05), nrow(.))) %>%
-      pivot_longer(cols = c(LOND, !!rlang::quo_name(input$alg), Bonferroni, Unadjusted),
+      pivot_longer(cols = c(LORD, !!rlang::quo_name(input$alg), Bonferroni, Unadjusted),
                    names_to = "adjustment",
                    values_to = "alpha")
   })
@@ -667,6 +750,31 @@ LORDcompServer <- function(input, output, session, LORDresult, data) {
       plot_ly(data_to_plot, x = ~index, y = ~alpha, color = ~adjustment) %>%
         add_lines() %>%
         layout(xaxis = ex, yaxis = why)
+    }
+  })
+  
+  #to make compnum reactive
+  select_alg_data <- eventReactive(input$compare, {
+    out <- select_alg(alg = input$alg, data = data())
+  })
+  
+  output$compnum <- renderUI({
+    if(!is.null(select_alg_data())) {
+      select_alg_data <- select_alg_data()
+      current_alg_data <- LORDresult$LORDres()
+      
+      div(
+        p(
+          paste0("LORD rejected ", sum(current_alg_data$R), " null hypotheses.")
+        ),
+        p(
+          paste0(input$alg, " rejected ", sum(select_alg_data$R), " null hypotheses.")
+        ),
+        style = "text-align: center;
+    vertical-align: middle;
+    font-family: Poppins, sans-serif;
+    font-size: 18px"
+      ) #close div
     }
   })
 }
@@ -889,13 +997,27 @@ SAFFRONtableServer <- function(input, output, session, SAFFRONresult) {
 }
 
 SAFFRONcountServer <- function(input, output, session, SAFFRONresult) {
-  output$count <- renderUI({
+  ns <- session$ns
+  #toggle download button
+  observe({
+    toggle(id = "downloadbutton")
+  })
+  
+  output$count <- renderUI({  
+    
     data <- SAFFRONresult$SAFFRONres()
     if(sum(data$R) == 1) {
       div(
-        id = "test",
         set_html_breaks(10),
-        paste0("1 null hypothesis was rejected"),
+        paste0("1 null hypothesis was rejected. See full results by downloading below"),
+        set_html_breaks(2),
+        shinyWidgets::downloadBttn(
+          outputId = ns("download"),
+          label = "Download results",
+          style = "fill",
+          color = "primary",
+          size = "sm"
+        ),
         style = "text-align: center;
     vertical-align: middle;
     font-family: Poppins, sans-serif;
@@ -903,16 +1025,36 @@ SAFFRONcountServer <- function(input, output, session, SAFFRONresult) {
       )
     } else {
       div(
-        id = "test2",
         set_html_breaks(10),
-        paste0(sum(data$R), " null hypotheses were rejected"),
+        paste0(sum(data$R), " null hypotheses were rejected. See full results by downloading below"),
+        set_html_breaks(2),
+        shinyWidgets::downloadBttn(
+          outputId = ns("download"),
+          label = "Download results",
+          style = "fill",
+          color = "primary",
+          size = "sm"
+        ),
         style = "text-align: center;
-    vertical-align: middle;
-    font-family: Poppins, sans-serif;
-    font-size: 18px"
+        vertical-align: middle;
+        font-family: Poppins, sans-serif;
+        font-size: 18px;
+        .shiny-download-link{
+        width: 250px;
+        }
+        "
       )
     }
   })
+  
+  output$download <- downloadHandler(
+    filename = function() {
+      paste("SAFFRON-", Sys.Date(), ".csv", sep = "")
+    },
+    content = function(file) {
+      write_csv(SAFFRONresult$SAFFRONres(), file)
+    }
+  )
 }
 
 SAFFRONplotServer <- function(input, output, session, SAFFRONresult) {
@@ -962,11 +1104,11 @@ SAFFRONcompServer <- function(input, output, session, SAFFRONresult, data) {
     
     data_to_plot <- cbind(current_alg_data, select_alg_data$alphainew) %>%
       mutate(index = row_number(),
-             LOND = log(alphai),
+             SAFFRON = log(alphai),
              !!rlang::quo_name(input$alg) := log(select_alg_data$alphainew),
              Bonferroni = log(0.05/index),
              Unadjusted = rep(log(0.05), nrow(.))) %>%
-      pivot_longer(cols = c(LOND, !!rlang::quo_name(input$alg), Bonferroni, Unadjusted),
+      pivot_longer(cols = c(SAFFRON, !!rlang::quo_name(input$alg), Bonferroni, Unadjusted),
                    names_to = "adjustment",
                    values_to = "alpha")
   })
@@ -983,6 +1125,31 @@ SAFFRONcompServer <- function(input, output, session, SAFFRONresult, data) {
       plot_ly(data_to_plot, x = ~index, y = ~alpha, color = ~adjustment) %>%
         add_lines() %>%
         layout(xaxis = ex, yaxis = why)
+    }
+  })
+  
+  #to make compnum reactive
+  select_alg_data <- eventReactive(input$compare, {
+    out <- select_alg(alg = input$alg, data = data())
+  })
+  
+  output$compnum <- renderUI({
+    if(!is.null(select_alg_data())) {
+      select_alg_data <- select_alg_data()
+      current_alg_data <- SAFFRONresult$SAFFRONres()
+      
+      div(
+        p(
+          paste0("SAFFRON rejected ", sum(current_alg_data$R), " null hypotheses.")
+        ),
+        p(
+          paste0(input$alg, " rejected ", sum(select_alg_data$R), " null hypotheses.")
+        ),
+        style = "text-align: center;
+    vertical-align: middle;
+    font-family: Poppins, sans-serif;
+    font-size: 18px"
+      ) #close div
     }
   })
 }
@@ -1200,13 +1367,27 @@ ADDIStableServer <- function(input, output, session, ADDISresult) {
 }
 
 ADDIScountServer <- function(input, output, session, ADDISresult) {
-  output$count <- renderUI({
+  ns <- session$ns
+  #toggle download button
+  observe({
+    toggle(id = "downloadbutton")
+  })
+  
+  output$count <- renderUI({  
+    
     data <- ADDISresult$ADDISres()
     if(sum(data$R) == 1) {
       div(
-        id = "test",
         set_html_breaks(10),
-        paste0("1 null hypothesis was rejected"),
+        paste0("1 null hypothesis was rejected. See full results by downloading below"),
+        set_html_breaks(2),
+        shinyWidgets::downloadBttn(
+          outputId = ns("download"),
+          label = "Download results",
+          style = "fill",
+          color = "primary",
+          size = "sm"
+        ),
         style = "text-align: center;
     vertical-align: middle;
     font-family: Poppins, sans-serif;
@@ -1214,16 +1395,36 @@ ADDIScountServer <- function(input, output, session, ADDISresult) {
       )
     } else {
       div(
-        id = "test2",
         set_html_breaks(10),
-        paste0(sum(data$R), " null hypotheses were rejected"),
+        paste0(sum(data$R), " null hypotheses were rejected. See full results by downloading below"),
+        set_html_breaks(2),
+        shinyWidgets::downloadBttn(
+          outputId = ns("download"),
+          label = "Download results",
+          style = "fill",
+          color = "primary",
+          size = "sm"
+        ),
         style = "text-align: center;
-    vertical-align: middle;
-    font-family: Poppins, sans-serif;
-    font-size: 18px"
+        vertical-align: middle;
+        font-family: Poppins, sans-serif;
+        font-size: 18px;
+        .shiny-download-link{
+        width: 250px;
+        }
+        "
       )
     }
   })
+  
+  output$download <- downloadHandler(
+    filename = function() {
+      paste("ADDIS-", Sys.Date(), ".csv", sep = "")
+    },
+    content = function(file) {
+      write_csv(ADDISresult$ADDISres(), file)
+    }
+  )
 }
 
 ADDISplotServer <- function(input, output, session, ADDISresult) {
@@ -1273,11 +1474,11 @@ ADDIScompServer <- function(input, output, session, ADDISresult, data) {
     
     data_to_plot <- cbind(current_alg_data, select_alg_data$alphainew) %>%
       mutate(index = row_number(),
-             LOND = log(alphai),
+             ADDIS = log(alphai),
              !!rlang::quo_name(input$alg) := log(select_alg_data$alphainew),
              Bonferroni = log(0.05/index),
              Unadjusted = rep(log(0.05), nrow(.))) %>%
-      pivot_longer(cols = c(LOND, !!rlang::quo_name(input$alg), Bonferroni, Unadjusted),
+      pivot_longer(cols = c(ADDIS, !!rlang::quo_name(input$alg), Bonferroni, Unadjusted),
                    names_to = "adjustment",
                    values_to = "alpha")
   })
@@ -1294,6 +1495,31 @@ ADDIScompServer <- function(input, output, session, ADDISresult, data) {
       plot_ly(data_to_plot, x = ~index, y = ~alpha, color = ~adjustment) %>%
         add_lines() %>%
         layout(xaxis = ex, yaxis = why)
+    }
+  })
+  
+  #to make compnum reactive
+  select_alg_data <- eventReactive(input$compare, {
+    out <- select_alg(alg = input$alg, data = data())
+  })
+  
+  output$compnum <- renderUI({
+    if(!is.null(select_alg_data())) {
+      select_alg_data <- select_alg_data()
+      current_alg_data <- ADDISresult$ADDISres()
+      
+      div(
+        p(
+          paste0("ADDIS rejected ", sum(current_alg_data$R), " null hypotheses.")
+        ),
+        p(
+          paste0(input$alg, " rejected ", sum(select_alg_data$R), " null hypotheses.")
+        ),
+        style = "text-align: center;
+    vertical-align: middle;
+    font-family: Poppins, sans-serif;
+    font-size: 18px"
+      ) #close div
     }
   })
 }
@@ -1629,13 +1855,27 @@ alphainvestingtableServer <- function(input, output, session, alphainvestingresu
 }
 
 alphainvestingcountServer <- function(input, output, session, alphainvestingresult) {
-  output$count <- renderUI({
+  ns <- session$ns
+  #toggle download button
+  observe({
+    toggle(id = "downloadbutton")
+  })
+  
+  output$count <- renderUI({  
+    
     data <- alphainvestingresult$alphainvestingres()
     if(sum(data$R) == 1) {
       div(
-        id = "test",
         set_html_breaks(10),
-        paste0("1 null hypothesis was rejected"),
+        paste0("1 null hypothesis was rejected. See full results by downloading below"),
+        set_html_breaks(2),
+        shinyWidgets::downloadBttn(
+          outputId = ns("download"),
+          label = "Download results",
+          style = "fill",
+          color = "primary",
+          size = "sm"
+        ),
         style = "text-align: center;
     vertical-align: middle;
     font-family: Poppins, sans-serif;
@@ -1643,16 +1883,36 @@ alphainvestingcountServer <- function(input, output, session, alphainvestingresu
       )
     } else {
       div(
-        id = "test2",
         set_html_breaks(10),
-        paste0(sum(data$R), " null hypotheses were rejected"),
+        paste0(sum(data$R), " null hypotheses were rejected. See full results by downloading below"),
+        set_html_breaks(2),
+        shinyWidgets::downloadBttn(
+          outputId = ns("download"),
+          label = "Download results",
+          style = "fill",
+          color = "primary",
+          size = "sm"
+        ),
         style = "text-align: center;
-    vertical-align: middle;
-    font-family: Poppins, sans-serif;
-    font-size: 18px"
+        vertical-align: middle;
+        font-family: Poppins, sans-serif;
+        font-size: 18px;
+        .shiny-download-link{
+        width: 250px;
+        }
+        "
       )
     }
   })
+  
+  output$download <- downloadHandler(
+    filename = function() {
+      paste("alphainvesting-", Sys.Date(), ".csv", sep = "")
+    },
+    content = function(file) {
+      write_csv(alphainvestingresult$alphainvestingres(), file)
+    }
+  )
 }
 
 alphainvestingplotServer <- function(input, output, session, alphainvestingresult) {
@@ -1702,11 +1962,11 @@ alphainvestingcompServer <- function(input, output, session, alphainvestingresul
     
     data_to_plot <- cbind(current_alg_data, select_alg_data$alphainew) %>%
       mutate(index = row_number(),
-             LOND = log(alphai),
+             AlphaInvesting = log(alphai),
              !!rlang::quo_name(input$alg) := log(select_alg_data$alphainew),
              Bonferroni = log(0.05/index),
              Unadjusted = rep(log(0.05), nrow(.))) %>%
-      pivot_longer(cols = c(LOND, !!rlang::quo_name(input$alg), Bonferroni, Unadjusted),
+      pivot_longer(cols = c(AlphaInvesting, !!rlang::quo_name(input$alg), Bonferroni, Unadjusted),
                    names_to = "adjustment",
                    values_to = "alpha")
   })
@@ -1723,6 +1983,31 @@ alphainvestingcompServer <- function(input, output, session, alphainvestingresul
       plot_ly(data_to_plot, x = ~index, y = ~alpha, color = ~adjustment) %>%
         add_lines() %>%
         layout(xaxis = ex, yaxis = why)
+    }
+  })
+  
+  #to make compnum reactive
+  select_alg_data <- eventReactive(input$compare, {
+    out <- select_alg(alg = input$alg, data = data())
+  })
+  
+  output$compnum <- renderUI({
+    if(!is.null(select_alg_data())) {
+      select_alg_data <- select_alg_data()
+      current_alg_data <- alphainvestingresult$alphainvestingres()
+      
+      div(
+        p(
+          paste0("Alpha Investing rejected ", sum(current_alg_data$R), " null hypotheses.")
+        ),
+        p(
+          paste0(input$alg, " rejected ", sum(select_alg_data$R), " null hypotheses.")
+        ),
+        style = "text-align: center;
+    vertical-align: middle;
+    font-family: Poppins, sans-serif;
+    font-size: 18px"
+      ) #close div
     }
   })
 }
@@ -1944,7 +2229,7 @@ LONDSTARcompServer <- function(input, output, session, LONDSTARresult, data) {
            LORDdiscard = LORD(data, version = "discard"),
            LORDdep = LORD(data, version = "dep"),
            SAFFRON = SAFFRON(data),
-           ADDIS = ADDIS(data))
+           ADDIS = ADDIS(data, async = TRUE))
   }
   
   data_to_plot <- eventReactive(input$compare, {
@@ -1959,11 +2244,11 @@ LONDSTARcompServer <- function(input, output, session, LONDSTARresult, data) {
     
     data_to_plot <- cbind(current_alg_data, select_alg_data$alphainew) %>%
       mutate(index = row_number(),
-             LOND = log(alphai),
+             LONDSTAR = log(alphai),
              !!rlang::quo_name(input$alg) := log(select_alg_data$alphainew),
              Bonferroni = log(0.05/index),
              Unadjusted = rep(log(0.05), nrow(.))) %>%
-      pivot_longer(cols = c(LOND, !!rlang::quo_name(input$alg), Bonferroni, Unadjusted),
+      pivot_longer(cols = c(LONDSTAR, !!rlang::quo_name(input$alg), Bonferroni, Unadjusted),
                    names_to = "adjustment",
                    values_to = "alpha")
   })
@@ -2223,7 +2508,7 @@ LORDSTARcompServer <- function(input, output, session, LORDSTARresult, data) {
            LORDdiscard = LORD(data, version = "discard"),
            LORDdep = LORD(data, version = "dep"),
            SAFFRON = SAFFRON(data),
-           ADDIS = ADDIS(data))
+           ADDIS = ADDIS(data, async = TRUE))
   }
   
   data_to_plot <- eventReactive(input$compare, {
@@ -2238,11 +2523,11 @@ LORDSTARcompServer <- function(input, output, session, LORDSTARresult, data) {
     
     data_to_plot <- cbind(current_alg_data, select_alg_data$alphainew) %>%
       mutate(index = row_number(),
-             LOND = log(alphai),
+             LORDSTAR = log(alphai),
              !!rlang::quo_name(input$alg) := log(select_alg_data$alphainew),
              Bonferroni = log(0.05/index),
              Unadjusted = rep(log(0.05), nrow(.))) %>%
-      pivot_longer(cols = c(LOND, !!rlang::quo_name(input$alg), Bonferroni, Unadjusted),
+      pivot_longer(cols = c(LORDSTAR, !!rlang::quo_name(input$alg), Bonferroni, Unadjusted),
                    names_to = "adjustment",
                    values_to = "alpha")
   })
@@ -2542,7 +2827,7 @@ SAFFRONSTARcompServer <- function(input, output, session, SAFFRONSTARresult, dat
            LORDdiscard = LORD(data, version = "discard"),
            LORDdep = LORD(data, version = "dep"),
            SAFFRON = SAFFRON(data),
-           ADDIS = ADDIS(data))
+           ADDIS = ADDIS(data, async = TRUE))
   }
   
   data_to_plot <- eventReactive(input$compare, {
@@ -2557,11 +2842,11 @@ SAFFRONSTARcompServer <- function(input, output, session, SAFFRONSTARresult, dat
     
     data_to_plot <- cbind(current_alg_data, select_alg_data$alphainew) %>%
       mutate(index = row_number(),
-             LOND = log(alphai),
+             SAFFRONSTAR = log(alphai),
              !!rlang::quo_name(input$alg) := log(select_alg_data$alphainew),
              Bonferroni = log(0.05/index),
              Unadjusted = rep(log(0.05), nrow(.))) %>%
-      pivot_longer(cols = c(LOND, !!rlang::quo_name(input$alg), Bonferroni, Unadjusted),
+      pivot_longer(cols = c(SAFFRONSTAR, !!rlang::quo_name(input$alg), Bonferroni, Unadjusted),
                    names_to = "adjustment",
                    values_to = "alpha")
   })

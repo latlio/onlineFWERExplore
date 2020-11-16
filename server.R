@@ -141,7 +141,7 @@ server <- function(input, output, session) {
              bound == boundstat,
              pi.vec == input$prop) %>%
       select(-c(pi.vec, n, bound)) %>%
-      arrange(dplyr::desc(power))
+      arrange(desc(power))
   })
   
   output$demores <- renderText({

@@ -170,15 +170,6 @@ LONDUI <- function(id) {
     br(),
     br(),
     shinyWidgets::downloadBttn(
-      outputId = ns("download"),
-      label = "Download results",
-      style = "fill",
-      color = "primary",
-      size = "sm"
-    ),
-    br(),
-    br(),
-    shinyWidgets::downloadBttn(
       outputId = ns("download2"),
       label = "Download inputs",
       style = "fill",
@@ -280,15 +271,6 @@ LORDUI <- function(id) {
     br(),
     br(),
     shinyWidgets::downloadBttn(
-      outputId = ns("download"),
-      label = "Download results",
-      style = "fill",
-      color = "primary",
-      size = "sm"
-    ),
-    br(),
-    br(),
-    shinyWidgets::downloadBttn(
       outputId = ns("download2"),
       label = "Download inputs",
       style = "fill",
@@ -385,15 +367,6 @@ SAFFRONUI <- function(id) {
     br(),
     br(),
     shinyWidgets::downloadBttn(
-      outputId = ns("download"),
-      label = "Download results",
-      style = "fill",
-      color = "primary",
-      size = "sm"
-    ),
-    br(),
-    br(),
-    shinyWidgets::downloadBttn(
       outputId = ns("download2"),
       label = "Download inputs",
       style = "fill",
@@ -477,15 +450,6 @@ ADDISUI <- function(id) {
     br(),
     br(),
     shinyWidgets::downloadBttn(
-      outputId = ns("download"),
-      label = "Download results",
-      style = "fill",
-      color = "primary",
-      size = "sm"
-    ),
-    br(),
-    br(),
-    shinyWidgets::downloadBttn(
       outputId = ns("download2"),
       label = "Download inputs",
       style = "fill",
@@ -558,15 +522,6 @@ alphainvestingUI <- function(id) {
     br(),
     br(),
     shinyWidgets::downloadBttn(
-      outputId = ns("download"),
-      label = "Download results",
-      style = "fill",
-      color = "primary",
-      size = "sm"
-    ),
-    br(),
-    br(),
-    shinyWidgets::downloadBttn(
       outputId = ns("download2"),
       label = "Download inputs",
       style = "fill",
@@ -609,15 +564,6 @@ LONDSTARUI <- function(id) {
       label = "Calculate", 
       style = "fill",
       color = "success"
-    ),
-    br(),
-    br(),
-    shinyWidgets::downloadBttn(
-      outputId = ns("download"),
-      label = "Download results",
-      style = "fill",
-      color = "primary",
-      size = "sm"
     ),
     br(),
     br(),
@@ -683,15 +629,6 @@ LORDSTARUI <- function(id) {
       label = "Calculate", 
       style = "fill",
       color = "success"
-    ),
-    br(),
-    br(),
-    shinyWidgets::downloadBttn(
-      outputId = ns("download"),
-      label = "Download results",
-      style = "fill",
-      color = "primary",
-      size = "sm"
     ),
     br(),
     br(),
@@ -786,15 +723,6 @@ SAFFRONSTARUI <- function(id) {
     br(),
     br(),
     shinyWidgets::downloadBttn(
-      outputId = ns("download"),
-      label = "Download results",
-      style = "fill",
-      color = "primary",
-      size = "sm"
-    ),
-    br(),
-    br(),
-    shinyWidgets::downloadBttn(
       outputId = ns("download2"),
       label = "Download inputs",
       style = "fill",
@@ -815,7 +743,15 @@ tableUI <- function(id) {
 
 summaryUI <- function(id) {
   ns <- NS(id)
-  uiOutput(ns("count"))
+  tagList(
+    useShinyjs(),
+    shinyjs::hidden(
+      div(
+        id = ns("downloadbutton"),
+        uiOutput(ns("count"))
+      ) #close div
+    )
+  )
 }
 
 compareUI <- function(id) {
@@ -823,7 +759,7 @@ compareUI <- function(id) {
 
   tagList(
     br(),
-    p("Make sure you already clicked Calculate. This feature compares the results of two algorithms. Parameters for the selected algorithm are assumed to be same as those for the current algorithm, otherwise they are set to the default values (see Code)."),
+    p("Make sure you already clicked Calculate. Clicking the 'Compare' button compares the results of two algorithms. Parameters for the selected algorithm are assumed to be same as those for the current algorithm, otherwise they are set to the default values (see Help)."),
     column(width = 12,
            align = "center",
            div(style = "display: inline-block;vertical-align:top;text-align:center",
@@ -838,7 +774,9 @@ compareUI <- function(id) {
     br(),
     plotlyOutput(ns("comp")) %>%
       shinycssloaders::withSpinner(type = 6,
-                                   color = "#0066CC")
+                                   color = "#0066CC"),
+    br(),
+    uiOutput(ns("compnum"))
   ) #close taglist
 }
 
