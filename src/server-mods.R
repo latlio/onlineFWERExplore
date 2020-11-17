@@ -60,9 +60,7 @@ LONDServer <- function(input, output, session, data) {
     if(!is.null(data())){
       shiny::showModal(modalDialog("Running algorithm..."))
     }
-    else {
-      shiny::showNotification("Please upload a dataset")
-    }
+    
     out <- LOND(d = data(),
                 alpha = alpha,
                 random = random,
@@ -85,7 +83,6 @@ LONDServer <- function(input, output, session, data) {
       value = unlist(params, use.names = FALSE)
     ) %>%
       filter(param != "go",
-             param != "download_bttn",
              param != "download2_bttn")
   })
   
@@ -100,25 +97,23 @@ LONDServer <- function(input, output, session, data) {
     }
   })
 
-  
-  # observeEvent(input$go, {
-  #   startAnim(session, "test", "shake")
-  # })
-
+  # output no data loaded error message
+  observeEvent(input$go, {
+    if(!is.data.frame(data)) {
+      shiny::showNotification("Please upload a dataset first!", type = "err")
+    }
+  })
   # Output error messages
-  observeEvent(input$go,
-               if(is.null(data())){
-                 shiny::showNotification("Please upload a dataset", type = "err")
-               }
-               else {
-                 tryCatch({
-                   LONDres()
-                 },
-                 error = function(err){
-                   shiny::showNotification(paste0(err), type = "err")
-                 })
-               }
-  )
+  observeEvent(input$go, {
+    if(!is.null(data())){
+      tryCatch({
+        LONDres()
+      },
+      error = function(err){
+        shiny::showNotification(paste0(err), type = "err")
+      })
+    }
+  })
 
   #download handler
   # global <- reactiveValues(response = FALSE)
@@ -523,21 +518,25 @@ LORDServer <- function(input, output, session, data) {
     }
   })
   
-  # Output error messages
-  observeEvent(input$go,
-               if(is.null(data())){
-                 shiny::showNotification("Please upload a dataset", type = "err")
-               }
-               else {
-                 tryCatch({
-                   LORDres()
-                 },
-                 error = function(err){
-                   shiny::showNotification(paste0(err), type = "err")
-                 })
-               }
-  )
+  # output no data loaded error message
+  observeEvent(input$go, {
+    if(!is.data.frame(data)) {
+      shiny::showNotification("Please upload a dataset first!", type = "err")
+    }
+  })
   
+  # Output error messages
+  observeEvent(input$go, {
+    if(!is.null(data())){
+      tryCatch({
+        LONDres()
+      },
+      error = function(err){
+        shiny::showNotification(paste0(err), type = "err")
+      })
+    }
+  })
+ 
   #provide download functionality
   # global <- reactiveValues(response = FALSE)
   # 
@@ -900,20 +899,24 @@ SAFFRONServer <- function(input, output, session, data) {
     }
   })
   
-  #output error messages
-  observeEvent(input$go,
-               if(is.null(data())){
-                 shiny::showNotification("Please upload a dataset", type = "err")
-               }
-               else {
-                 tryCatch({
-                   SAFFRONres()
-                 },
-                 error = function(err){
-                   shiny::showNotification(paste0(err), type = "err")
-                 })
-               }
-  )
+  # output no data loaded error message
+  observeEvent(input$go, {
+    if(!is.data.frame(data)) {
+      shiny::showNotification("Please upload a dataset first!", type = "err")
+    }
+  })
+  
+  # Output error messages
+  observeEvent(input$go, {
+    if(!is.null(data())){
+      tryCatch({
+        LONDres()
+      },
+      error = function(err){
+        shiny::showNotification(paste0(err), type = "err")
+      })
+    }
+  })
   
   #provide download functionality
   # global <- reactiveValues(response = FALSE)
@@ -1271,20 +1274,24 @@ ADDISServer <- function(input, output, session, data) {
     }
   })
   
-  #output error messages
-  observeEvent(input$go,
-               if(is.null(data())){
-                 shiny::showNotification("Please upload a dataset", type = "err")
-               }
-               else {
-                 tryCatch({
-                   ADDISres()
-                 },
-                 error = function(err){
-                   shiny::showNotification(paste0(err), type = "err")
-                 })
-               }
-  )
+  # output no data loaded error message
+  observeEvent(input$go, {
+    if(!is.data.frame(data)) {
+      shiny::showNotification("Please upload a dataset first!", type = "err")
+    }
+  })
+  
+  # Output error messages
+  observeEvent(input$go, {
+    if(!is.null(data())){
+      tryCatch({
+        LONDres()
+      },
+      error = function(err){
+        shiny::showNotification(paste0(err), type = "err")
+      })
+    }
+  })
   
   #provide download functionality
   # global <- reactiveValues(response = FALSE)
@@ -1641,20 +1648,24 @@ ADDISaServer <- function(input, output, session, data) {
     }
   })
   
-  #output error messages
-  observeEvent(input$go,
-               if(is.null(data())){
-                 shiny::showNotification("Please upload a dataset", type = "err")
-               }
-               else {
-                 tryCatch({
-                   ADDISres()
-                 },
-                 error = function(err){
-                   shiny::showNotification(paste0(err), type = "err")
-                 })
-               }
-  )
+  # output no data loaded error message
+  observeEvent(input$go, {
+    if(!is.data.frame(data)) {
+      shiny::showNotification("Please upload a dataset first!", type = "err")
+    }
+  })
+  
+  # Output error messages
+  observeEvent(input$go, {
+    if(!is.null(data())){
+      tryCatch({
+        LONDres()
+      },
+      error = function(err){
+        shiny::showNotification(paste0(err), type = "err")
+      })
+    }
+  })
   
   #provide download functionality
   # global <- reactiveValues(response = FALSE)
@@ -1780,20 +1791,24 @@ alphainvestingServer <- function(input, output, session, data) {
     }
   })
   
-  #output error messages
-  observeEvent(input$go,
-               if(is.null(data())){
-                 shiny::showNotification("Please upload a dataset", type = "err")
-               }
-               else {
-                 tryCatch({
-                   alphainvestingres()
-                 },
-                 error = function(err){
-                   shiny::showNotification(paste0(err), type = "err")
-                 })
-               }
-  )
+  # output no data loaded error message
+  observeEvent(input$go, {
+    if(!is.data.frame(data)) {
+      shiny::showNotification("Please upload a dataset first!", type = "err")
+    }
+  })
+  
+  # Output error messages
+  observeEvent(input$go, {
+    if(!is.null(data())){
+      tryCatch({
+        LONDres()
+      },
+      error = function(err){
+        shiny::showNotification(paste0(err), type = "err")
+      })
+    }
+  })
   
   output$download <- downloadHandler(
     filename = function() {
@@ -2072,23 +2087,24 @@ LONDSTARServer <- function(input, output, session, data) {
     }
   })
   
-  #output error messages
-  observeEvent(input$go,
-               if(is.null(data())){
-                 shiny::showNotification("Please upload a dataset", type = "err")
-               }
-               else {
-                 tryCatch(
-                   LONDSTARres(),
-                   # warning = function(warn){
-                   #   shiny::showNotification(paste0(warn), type = "warning")
-                   # },
-                   error = function(err){
-                     shiny::showNotification(paste0(err), type = "err")
-                   }
-                   )
-               }
-  )
+  # output no data loaded error message
+  observeEvent(input$go, {
+    if(!is.data.frame(data)) {
+      shiny::showNotification("Please upload a dataset first!", type = "err")
+    }
+  })
+  
+  # Output error messages
+  observeEvent(input$go, {
+    if(!is.null(data())){
+      tryCatch({
+        LONDres()
+      },
+      error = function(err){
+        shiny::showNotification(paste0(err), type = "err")
+      })
+    }
+  })
   
   #provide download functionality
   # global <- reactiveValues(response = FALSE)
@@ -2351,23 +2367,24 @@ LORDSTARServer <- function(input, output, session, data) {
     }
   })
   
-  #output error messages
-  observeEvent(input$go,
-               if(is.null(data())){
-                 shiny::showNotification("Please upload a dataset", type = "err")
-               }
-               else {
-                 tryCatch(
-                   LORDSTARres(),
-                   # warning = function(warn){
-                   #   shiny::showNotification(paste0(warn), type = "warning")
-                   # },
-                   error = function(err){
-                     shiny::showNotification(paste0(err), type = "err")
-                   }
-                 )
-               }
-  )
+  # output no data loaded error message
+  observeEvent(input$go, {
+    if(!is.data.frame(data)) {
+      shiny::showNotification("Please upload a dataset first!", type = "err")
+    }
+  })
+  
+  # Output error messages
+  observeEvent(input$go, {
+    if(!is.null(data())){
+      tryCatch({
+        LONDres()
+      },
+      error = function(err){
+        shiny::showNotification(paste0(err), type = "err")
+      })
+    }
+  })
   
   #provide download functionality
   # global <- reactiveValues(response = FALSE)
@@ -2670,23 +2687,24 @@ SAFFRONSTARServer <- function(input, output, session, data) {
     }
   })
   
-  #output error messages
-  observeEvent(input$go,
-               if(is.null(data())){
-                 shiny::showNotification("Please upload a dataset", type = "err")
-               }
-               else {
-                 tryCatch(
-                   SAFFRONSTARres(),
-                   # warning = function(warn){
-                   #   shiny::showNotification(paste0(warn), type = "warning")
-                   # },
-                   error = function(err){
-                     shiny::showNotification(paste0(err), type = "err")
-                   }
-                 )
-               }
-  )
+  # output no data loaded error message
+  observeEvent(input$go, {
+    if(!is.data.frame(data)) {
+      shiny::showNotification("Please upload a dataset first!", type = "err")
+    }
+  })
+  
+  # Output error messages
+  observeEvent(input$go, {
+    if(!is.null(data())){
+      tryCatch({
+        LONDres()
+      },
+      error = function(err){
+        shiny::showNotification(paste0(err), type = "err")
+      })
+    }
+  })
   
   #provide download functionality
   # global <- reactiveValues(response = FALSE)
