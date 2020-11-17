@@ -91,7 +91,11 @@ LONDServer <- function(input, output, session, data) {
     if(input$go == 0){
       shinyjs::show(id = "placeholder")
       shinyjs::show(id = "placeholder2")
-    } else {
+    } else if(input$go > 0 && !is.data.frame(data)) {
+      shinyjs::show(id = "placeholder")
+      shinyjs::show(id = "placeholder2")
+    } 
+    else {
       shinyjs::hide(id = "placeholder")
       shinyjs::hide(id = "placeholder2")
     }
@@ -402,7 +406,6 @@ LORDServer <- function(input, output, session, data) {
       value = unlist(params, use.names = FALSE)
     ) %>%
       filter(param != "go",
-             param != "download_bttn",
              param != "download2_bttn")
   })
   
@@ -512,7 +515,11 @@ LORDServer <- function(input, output, session, data) {
     if(input$go == 0){
       shinyjs::show(id = "placeholder")
       shinyjs::show(id = "placeholder2")
-    } else {
+    } else if(input$go > 0 && !is.data.frame(data)) {
+      shinyjs::show(id = "placeholder")
+      shinyjs::show(id = "placeholder2")
+    } 
+    else {
       shinyjs::hide(id = "placeholder")
       shinyjs::hide(id = "placeholder2")
     }
@@ -884,7 +891,6 @@ SAFFRONServer <- function(input, output, session, data) {
       value = unlist(params, use.names = FALSE)
     ) %>%
       filter(param != "go",
-             param != "download_bttn",
              param != "download2_bttn")
   })
   
@@ -893,7 +899,11 @@ SAFFRONServer <- function(input, output, session, data) {
     if(input$go == 0){
       shinyjs::show(id = "placeholder")
       shinyjs::show(id = "placeholder2")
-    } else {
+    } else if(input$go > 0 && !is.data.frame(data)) {
+      shinyjs::show(id = "placeholder")
+      shinyjs::show(id = "placeholder2")
+    } 
+    else {
       shinyjs::hide(id = "placeholder")
       shinyjs::hide(id = "placeholder2")
     }
@@ -1259,16 +1269,20 @@ ADDISServer <- function(input, output, session, data) {
       value = unlist(params, use.names = FALSE)
     ) %>%
       filter(param != "go",
-             param != "download_bttn",
              param != "download2_bttn")
   })
   
+  # remove placeholder text
   # remove placeholder text
   observeEvent(input$go, {
     if(input$go == 0){
       shinyjs::show(id = "placeholder")
       shinyjs::show(id = "placeholder2")
-    } else {
+    } else if(input$go > 0 && !is.data.frame(data)) {
+      shinyjs::show(id = "placeholder")
+      shinyjs::show(id = "placeholder2")
+    } 
+    else {
       shinyjs::hide(id = "placeholder")
       shinyjs::hide(id = "placeholder2")
     }
@@ -1633,16 +1647,20 @@ ADDISaServer <- function(input, output, session, data) {
       value = unlist(params, use.names = FALSE)
     ) %>%
       filter(param != "go",
-             param != "download_bttn",
              param != "download2_bttn")
   })
   
+  # remove placeholder text
   # remove placeholder text
   observeEvent(input$go, {
     if(input$go == 0){
       shinyjs::show(id = "placeholder")
       shinyjs::show(id = "placeholder2")
-    } else {
+    } else if(input$go > 0 && !is.data.frame(data)) {
+      shinyjs::show(id = "placeholder")
+      shinyjs::show(id = "placeholder2")
+    } 
+    else {
       shinyjs::hide(id = "placeholder")
       shinyjs::hide(id = "placeholder2")
     }
@@ -1776,7 +1794,6 @@ alphainvestingServer <- function(input, output, session, data) {
       value = unlist(params, use.names = FALSE)
     ) %>%
       filter(param != "go",
-             param != "download_bttn",
              param != "download2_bttn")
   })
   
@@ -1785,7 +1802,11 @@ alphainvestingServer <- function(input, output, session, data) {
     if(input$go == 0){
       shinyjs::show(id = "placeholder")
       shinyjs::show(id = "placeholder2")
-    } else {
+    } else if(input$go > 0 && !is.data.frame(data)) {
+      shinyjs::show(id = "placeholder")
+      shinyjs::show(id = "placeholder2")
+    } 
+    else {
       shinyjs::hide(id = "placeholder")
       shinyjs::hide(id = "placeholder2")
     }
@@ -2072,7 +2093,6 @@ LONDSTARServer <- function(input, output, session, data) {
       value = unlist(params, use.names = FALSE)
     ) %>%
       filter(param != "go",
-             param != "download_bttn",
              param != "download2_bttn")
   })
   
@@ -2081,7 +2101,11 @@ LONDSTARServer <- function(input, output, session, data) {
     if(input$go == 0){
       shinyjs::show(id = "placeholder")
       shinyjs::show(id = "placeholder2")
-    } else {
+    } else if(input$go > 0 && !is.data.frame(data)) {
+      shinyjs::show(id = "placeholder")
+      shinyjs::show(id = "placeholder2")
+    } 
+    else {
       shinyjs::hide(id = "placeholder")
       shinyjs::hide(id = "placeholder2")
     }
@@ -2352,7 +2376,6 @@ LORDSTARServer <- function(input, output, session, data) {
       value = unlist(params, use.names = FALSE)
     ) %>%
       filter(param != "go",
-             param != "download_bttn",
              param != "download2_bttn")
   })
   
@@ -2361,7 +2384,11 @@ LORDSTARServer <- function(input, output, session, data) {
     if(input$go == 0){
       shinyjs::show(id = "placeholder")
       shinyjs::show(id = "placeholder2")
-    } else {
+    } else if(input$go > 0 && !is.data.frame(data)) {
+      shinyjs::show(id = "placeholder")
+      shinyjs::show(id = "placeholder2")
+    } 
+    else {
       shinyjs::hide(id = "placeholder")
       shinyjs::hide(id = "placeholder2")
     }
@@ -2672,7 +2699,6 @@ SAFFRONSTARServer <- function(input, output, session, data) {
       value = unlist(params, use.names = FALSE)
     ) %>%
       filter(param != "go",
-             param != "download_bttn",
              param != "download2_bttn")
   })
   
@@ -2681,7 +2707,11 @@ SAFFRONSTARServer <- function(input, output, session, data) {
     if(input$go == 0){
       shinyjs::show(id = "placeholder")
       shinyjs::show(id = "placeholder2")
-    } else {
+    } else if(input$go > 0 && !is.data.frame(data)) {
+      shinyjs::show(id = "placeholder")
+      shinyjs::show(id = "placeholder2")
+    } 
+    else {
       shinyjs::hide(id = "placeholder")
       shinyjs::hide(id = "placeholder2")
     }
