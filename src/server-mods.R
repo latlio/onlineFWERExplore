@@ -85,30 +85,36 @@ LONDServer <- function(input, output, session, data) {
       filter(param != "go",
              param != "download2_bttn")
   })
-  
+
   # remove placeholder text
   observeEvent(input$go, {
+
     if(input$go == 0){
       shinyjs::show(id = "placeholder")
       shinyjs::show(id = "placeholder2")
-    } else if(input$go > 0 && !is.data.frame(data)) {
-      shinyjs::show(id = "placeholder")
-      shinyjs::show(id = "placeholder2")
-    } 
-    else {
+    } else if(input$go > 0 && !is.null(data())) {
       shinyjs::hide(id = "placeholder")
       shinyjs::hide(id = "placeholder2")
+    } 
+    else {
+      shinyjs::show(id = "placeholder")
+      shinyjs::show(id = "placeholder2")
     }
+    
   })
 
   # output no data loaded error message
-  observeEvent(input$go, {
-    if(!is.data.frame(data)) {
-      shiny::showNotification("Please upload a dataset first!", type = "err")
-    }
-  })
+  # observeEvent(input$go, {
+  #   ifelse(!is.null(datacheck), signal <- 1, signal <- 0)
+  #   print(signal)
+  #   if(signal == 0) {
+  #     shiny::showNotification("Please upload a dataset first!", type = "err")
+  #   }
+  # })
+
   # Output error messages
   observeEvent(input$go, {
+
     if(!is.null(data())){
       tryCatch({
         LONDres()
@@ -411,7 +417,7 @@ LORDServer <- function(input, output, session, data) {
   
   # Run LORD algorithm
   LORDres <- eventReactive(input$go, {
-    
+ 
     # if(is.null(data())){
     #   shiny::showNotification("Please upload a dataset", type = "err")
     # }
@@ -515,7 +521,7 @@ LORDServer <- function(input, output, session, data) {
     if(input$go == 0){
       shinyjs::show(id = "placeholder")
       shinyjs::show(id = "placeholder2")
-    } else if(input$go > 0 && !is.data.frame(data)) {
+    } else if(input$go > 0 && is.null(data)) {
       shinyjs::show(id = "placeholder")
       shinyjs::show(id = "placeholder2")
     } 
@@ -525,18 +531,18 @@ LORDServer <- function(input, output, session, data) {
     }
   })
   
-  # output no data loaded error message
-  observeEvent(input$go, {
-    if(!is.data.frame(data)) {
-      shiny::showNotification("Please upload a dataset first!", type = "err")
-    }
-  })
+  # # output no data loaded error message
+  # observeEvent(input$go, {
+  #   if(is.null(data)) {
+  #     shiny::showNotification("Please upload a dataset first!", type = "err")
+  #   }
+  # })
   
   # Output error messages
   observeEvent(input$go, {
     if(!is.null(data())){
       tryCatch({
-        LONDres()
+        LORDres()
       },
       error = function(err){
         shiny::showNotification(paste0(err), type = "err")
@@ -909,18 +915,18 @@ SAFFRONServer <- function(input, output, session, data) {
     }
   })
   
-  # output no data loaded error message
-  observeEvent(input$go, {
-    if(!is.data.frame(data)) {
-      shiny::showNotification("Please upload a dataset first!", type = "err")
-    }
-  })
+  # # output no data loaded error message
+  # observeEvent(input$go, {
+  #   if(!is.data.frame(data)) {
+  #     shiny::showNotification("Please upload a dataset first!", type = "err")
+  #   }
+  # })
   
   # Output error messages
   observeEvent(input$go, {
     if(!is.null(data())){
       tryCatch({
-        LONDres()
+        SAFFRONres()
       },
       error = function(err){
         shiny::showNotification(paste0(err), type = "err")
@@ -1289,17 +1295,17 @@ ADDISServer <- function(input, output, session, data) {
   })
   
   # output no data loaded error message
-  observeEvent(input$go, {
-    if(!is.data.frame(data)) {
-      shiny::showNotification("Please upload a dataset first!", type = "err")
-    }
-  })
+  # observeEvent(input$go, {
+  #   if(!is.data.frame(data)) {
+  #     shiny::showNotification("Please upload a dataset first!", type = "err")
+  #   }
+  # })
   
   # Output error messages
   observeEvent(input$go, {
     if(!is.null(data())){
       tryCatch({
-        LONDres()
+        ADDISres()
       },
       error = function(err){
         shiny::showNotification(paste0(err), type = "err")
@@ -1677,7 +1683,7 @@ ADDISaServer <- function(input, output, session, data) {
   observeEvent(input$go, {
     if(!is.null(data())){
       tryCatch({
-        LONDres()
+        ADDISres()
       },
       error = function(err){
         shiny::showNotification(paste0(err), type = "err")
@@ -1823,7 +1829,7 @@ alphainvestingServer <- function(input, output, session, data) {
   observeEvent(input$go, {
     if(!is.null(data())){
       tryCatch({
-        LONDres()
+        alphainvestingres()
       },
       error = function(err){
         shiny::showNotification(paste0(err), type = "err")
@@ -2122,7 +2128,7 @@ LONDSTARServer <- function(input, output, session, data) {
   observeEvent(input$go, {
     if(!is.null(data())){
       tryCatch({
-        LONDres()
+        LONDSTARres()
       },
       error = function(err){
         shiny::showNotification(paste0(err), type = "err")
@@ -2405,7 +2411,7 @@ LORDSTARServer <- function(input, output, session, data) {
   observeEvent(input$go, {
     if(!is.null(data())){
       tryCatch({
-        LONDres()
+        LORDSTARres()
       },
       error = function(err){
         shiny::showNotification(paste0(err), type = "err")
@@ -2728,7 +2734,7 @@ SAFFRONSTARServer <- function(input, output, session, data) {
   observeEvent(input$go, {
     if(!is.null(data())){
       tryCatch({
-        LONDres()
+        SAFFRONSTARres()
       },
       error = function(err){
         shiny::showNotification(paste0(err), type = "err")

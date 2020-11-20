@@ -5,6 +5,9 @@
 # Created: Fri Sep 18 09:58:34 2020 ------------------------------
 ################################################################################
 
+#set memory limit
+options(shiny.maxRequestSize = 30*1024^2)
+
 #clear before deplyment
 rm(list = ls())
 
