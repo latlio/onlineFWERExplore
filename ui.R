@@ -61,6 +61,7 @@ ui <- shiny::fluidPage(
     ####make the navbar pages####
     shiny::navbarPage(HTML(paste0("onlineFDR", tags$sub("explore"))),
                       inverse = TRUE,
+                      theme = shinythemes::shinytheme("cosmo"),
                       windowTitle = "onlineFDRExplore",
                       shiny::tabPanel("Get Started",
                                       source("src/file_upload.R")$value),

@@ -30,6 +30,7 @@ library(rmarkdown)
 library(markdown)
 library(shinydashboard)
 library(shinydashboardPlus)
+library(shinythemes)
 # library(shinyanimate)
 
 # 2. Data Manipulation
