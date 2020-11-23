@@ -60,6 +60,8 @@ ui <- shiny::fluidPage(
     ),
     ####make the navbar pages####
     shiny::navbarPage(HTML(paste0("onlineFDR", tags$sub("explore"))),
+                      inverse = TRUE,
+                      windowTitle = "onlineFDRExplore",
                       shiny::tabPanel("Get Started",
                                       source("src/file_upload.R")$value),
                       shiny::navbarMenu("Synchronous",
