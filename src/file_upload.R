@@ -14,6 +14,10 @@ fluidPage(
         img(src = "user-diagram.png"),
         br(),
         "For more information, check out the", a(href = "https://dsrobertson.github.io/onlineFDR/articles/onlineFDR.html", "Get Started"), "page in our vignette."))  %>%
+      bs_append(title = "Synchronous vs Asynchronous", content = p(
+        "Synchronous algorithms are designed to be used for a sequence of tests in which each test can only start when the previous test has finished. Asynchronous algorithms are designed to be used when tests overlap in time. The asynchronous setting may be more realistic since tests are often performed to overlap to gain time efficiency and because of difficulties of coordination in a large-scale, decentralized setting.",
+        img(src = "sync-diagram.png")
+      )) %>%
       bs_append(title = "Help & feedback", content = HTML("For additional help or to submit feedback or bug reports,
        please contact: <br>
        David Robertson <br>
