@@ -24,6 +24,74 @@ set_html_breaks <- function(n) {
   HTML(strrep(br(), n))
 }
 
+#### FUNCTION FACTORY ####
+make_count_server_function <- function(algorithm_result, file_string) {
+  force(file_string)
+  count_server_function <- function(input, output, session) {
+    ns <- session$ns
+    #toggle download button
+    observe({
+      toggle(id = "downloadbutton")
+    })
+    
+    output$count <- renderUI({  
+      
+      data <- algorithm_result[[1]]
+      if(sum(data$R) == 1) {
+        div(
+          set_html_breaks(10),
+          paste0("1 null hypothesis was rejected. See full results by downloading below"),
+          set_html_breaks(2),
+          shinyWidgets::downloadBttn(
+            outputId = ns("download"),
+            label = "Download results",
+            style = "fill",
+            color = "primary",
+            size = "sm"
+          ),
+          style = "text-align: center;
+    vertical-align: middle;
+    font-family: Poppins, sans-serif;
+    font-size: 18px"
+        )
+      } else {
+        div(
+          set_html_breaks(10),
+          paste0(sum(data$R), " null hypotheses were rejected. See full results by downloading below"),
+          set_html_breaks(2),
+          shinyWidgets::downloadBttn(
+            outputId = ns("download"),
+            label = "Download results",
+            style = "fill",
+            color = "primary",
+            size = "sm"
+          ),
+          style = "text-align: center;
+        vertical-align: middle;
+        font-family: Poppins, sans-serif;
+        font-size: 18px;
+        .shiny-download-link{
+        width: 250px;
+        }
+        "
+        )
+      }
+    })
+    
+    output$download <- downloadHandler(
+      filename = function() {
+        paste(file_string, Sys.Date(), ".csv", sep = "")
+      },
+      content = function(file) {
+        write_csv(algorithm_result[[1]], file)
+      }
+    )
+  }
+  return(count_server_function)
+}
+
+#### LOND ####
+
 LONDServer <- function(input, output, session, data) {
   ns <- session$ns
   
@@ -199,6 +267,8 @@ LONDtableServer <- function(input, output, session, LONDresult) {
   }) #close render reactable
 }
 
+# LONDcountServer <- make_count_server_function(algorithm_result = LONDresult, file_string = "LOND-")
+
 LONDcountServer <- function(input, output, session, LONDresult) {
   ns <- session$ns
   #toggle download button
@@ -206,9 +276,9 @@ LONDcountServer <- function(input, output, session, LONDresult) {
     toggle(id = "downloadbutton")
     # shinyanimate::startAnim(session, "downloadbutton", "fadeInDown")
   })
-  
-  output$count <- renderUI({  
-    
+
+  output$count <- renderUI({
+
     data <- LONDresult$LONDres()
     if(sum(data$R) == 1) {
       div(
@@ -250,7 +320,7 @@ LONDcountServer <- function(input, output, session, LONDresult) {
       )
     }
   })
-  
+
   output$download <- downloadHandler(
     filename = function() {
       paste("LOND-", Sys.Date(), ".csv", sep = "")

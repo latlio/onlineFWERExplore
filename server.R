@@ -5,6 +5,7 @@
 # Created: Fri Sep 18 09:57:20 2020 ------------------------------
 ################################################################################
 source("src/server-mods.R")
+# source("src/router.R")
 
 # 1. Shiny ----
 library(shiny)
@@ -15,7 +16,7 @@ library(shinyBS) #custom widgets
 library(bsplus)
 # library(shinyalert) 
 library(shinyFeedback) #for user feedback messages
-library(tippy) #for hovers
+# library(tippy) #for hovers
 # library(highcharter) #for animated plots
 library(plotly)
 library(waiter) #for loading screen
@@ -23,6 +24,7 @@ library(sever) #for waiting screen
 library(knitr)
 library(shinydashboard)
 library(shinydashboardPlus)
+library(shiny.router) #for links
 # library(shinyanimate)
 
 # 2. Data Manipulation
@@ -52,6 +54,8 @@ server <- function(input, output, session) {
   sever()
   Sys.sleep(0.5)
   waiter_hide()
+  
+  # router$server(input, output, session)
   
   #Load in data
   in_data <- reactive({

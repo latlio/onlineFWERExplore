@@ -5,6 +5,7 @@
 # Created: Fri Sep 18 09:50:19 2020 ------------------------------
 ################################################################################
 source("src/ui-mods.R")
+# source("src/router.R")
 
 # 1. Shiny ----
 library(shiny)
@@ -15,7 +16,7 @@ library(shinyBS) #custom widgets
 library(bsplus)
 # library(shinyalert) 
 library(shinyFeedback) #for user feedback messages
-library(tippy) #for hovers
+# library(tippy) #for hovers
 # library(highcharter) #for animated plots
 library(plotly)
 library(waiter) #for loading screen
@@ -23,6 +24,7 @@ library(sever) #for waiting screen
 library(knitr)
 library(shinydashboard)
 library(shinydashboardPlus)
+library(shiny.router) #for links
 # library(shinyanimate)
 
 # 2. Data Manipulation
@@ -58,16 +60,18 @@ ui <- shiny::fluidPage(
                  ".h1 {font-family: Lato;}",
                  ".p {font-family: Lato;}")
     ),
+    # tags$ul(
+    #   tags$li(a(href = route_link("lond"), "LOND"))
+    # ),
+    # router$ui,
     ####make the navbar pages####
     shiny::navbarPage(HTML(paste0("onlineFDR", tags$sub("explore"))),
-                      inverse = TRUE,
-                      theme = shinythemes::shinytheme("cosmo"),
                       windowTitle = "onlineFDRExplore",
                       shiny::tabPanel("Get Started",
                                       source("src/file_upload.R")$value),
                       shiny::navbarMenu("Synchronous",
                                         shiny::tabPanel("LOND",
-                                                        source("src/LOND_page.R")$value), #close tabPanel
+                                                        source("src/LOND_page.R")$value),
                                         shiny::tabPanel("LORD",
                                                         source("src/LORD_page.R")$value), #close tabPanel
                                         shiny::tabPanel("SAFFRON",

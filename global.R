@@ -6,7 +6,7 @@
 ################################################################################
 
 #set memory limit
-options(shiny.maxRequestSize = 30*1024^2)
+options(shiny.maxRequestSize = 500*1024^2)
 
 #clear before deplyment
 rm(list = ls())
@@ -20,7 +20,7 @@ library(shinyBS) #custom widgets
 library(bsplus)
 # library(shinyalert) 
 library(shinyFeedback) #for user feedback messages
-library(tippy) #for hovers
+# library(tippy) #for hovers
 # library(highcharter) #for animated plots
 library(plotly)
 library(waiter) #for loading screen
@@ -31,6 +31,7 @@ library(markdown)
 library(shinydashboard)
 library(shinydashboardPlus)
 library(shinythemes)
+library(shiny.router) # for links
 # library(shinyanimate)
 
 # 2. Data Manipulation
