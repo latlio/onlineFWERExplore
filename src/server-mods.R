@@ -588,17 +588,19 @@ LORDServer <- function(input, output, session, data) {
   
   # remove placeholder text
   observeEvent(input$go, {
+    
     if(input$go == 0){
       shinyjs::show(id = "placeholder")
       shinyjs::show(id = "placeholder2")
-    } else if(input$go > 0 && is.null(data)) {
-      shinyjs::show(id = "placeholder")
-      shinyjs::show(id = "placeholder2")
-    } 
-    else {
+    } else if(input$go > 0 && !is.null(data())) {
       shinyjs::hide(id = "placeholder")
       shinyjs::hide(id = "placeholder2")
+    } 
+    else {
+      shinyjs::show(id = "placeholder")
+      shinyjs::show(id = "placeholder2")
     }
+    
   })
   
   # # output no data loaded error message
@@ -963,17 +965,19 @@ SAFFRONServer <- function(input, output, session, data) {
   
   # remove placeholder text
   observeEvent(input$go, {
+    
     if(input$go == 0){
       shinyjs::show(id = "placeholder")
       shinyjs::show(id = "placeholder2")
-    } else if(input$go > 0 && !is.data.frame(data)) {
-      shinyjs::show(id = "placeholder")
-      shinyjs::show(id = "placeholder2")
-    } 
-    else {
+    } else if(input$go > 0 && !is.null(data())) {
       shinyjs::hide(id = "placeholder")
       shinyjs::hide(id = "placeholder2")
+    } 
+    else {
+      shinyjs::show(id = "placeholder")
+      shinyjs::show(id = "placeholder2")
     }
+    
   })
   
   # # output no data loaded error message
@@ -1332,19 +1336,20 @@ ADDISServer <- function(input, output, session, data) {
   })
   
   # remove placeholder text
-  # remove placeholder text
   observeEvent(input$go, {
+    
     if(input$go == 0){
       shinyjs::show(id = "placeholder")
       shinyjs::show(id = "placeholder2")
-    } else if(input$go > 0 && !is.data.frame(data)) {
-      shinyjs::show(id = "placeholder")
-      shinyjs::show(id = "placeholder2")
-    } 
-    else {
+    } else if(input$go > 0 && !is.null(data())) {
       shinyjs::hide(id = "placeholder")
       shinyjs::hide(id = "placeholder2")
+    } 
+    else {
+      shinyjs::show(id = "placeholder")
+      shinyjs::show(id = "placeholder2")
     }
+    
   })
   
   # output no data loaded error message
@@ -1701,33 +1706,28 @@ ADDISaServer <- function(input, output, session, data) {
   })
   
   # remove placeholder text
-  # remove placeholder text
   observeEvent(input$go, {
+    
     if(input$go == 0){
       shinyjs::show(id = "placeholder")
       shinyjs::show(id = "placeholder2")
-    } else if(input$go > 0 && !is.data.frame(data)) {
-      shinyjs::show(id = "placeholder")
-      shinyjs::show(id = "placeholder2")
-    } 
-    else {
+    } else if(input$go > 0 && !is.null(data())) {
       shinyjs::hide(id = "placeholder")
       shinyjs::hide(id = "placeholder2")
+    } 
+    else {
+      shinyjs::show(id = "placeholder")
+      shinyjs::show(id = "placeholder2")
     }
+    
   })
   
   # output no data loaded error message
   observeEvent(input$go, {
-    if(!is.data.frame(data)) {
-      shiny::showNotification("Please upload a dataset first!", type = "err")
-    }
-  })
-  
-  # Output error messages
-  observeEvent(input$go, {
+    
     if(!is.null(data())){
       tryCatch({
-        ADDISres()
+        res()
       },
       error = function(err){
         shiny::showNotification(paste0(err), type = "err")
@@ -1840,27 +1840,22 @@ alphainvestingServer <- function(input, output, session, data) {
   
   # remove placeholder text
   observeEvent(input$go, {
+    
     if(input$go == 0){
       shinyjs::show(id = "placeholder")
       shinyjs::show(id = "placeholder2")
-    } else if(input$go > 0 && !is.data.frame(data)) {
-      shinyjs::show(id = "placeholder")
-      shinyjs::show(id = "placeholder2")
-    } 
-    else {
+    } else if(input$go > 0 && !is.null(data())) {
       shinyjs::hide(id = "placeholder")
       shinyjs::hide(id = "placeholder2")
+    } 
+    else {
+      shinyjs::show(id = "placeholder")
+      shinyjs::show(id = "placeholder2")
     }
+    
   })
   
   # output no data loaded error message
-  observeEvent(input$go, {
-    if(!is.data.frame(data)) {
-      shiny::showNotification("Please upload a dataset first!", type = "err")
-    }
-  })
-  
-  # Output error messages
   observeEvent(input$go, {
     if(!is.null(data())){
       tryCatch({
@@ -2109,7 +2104,7 @@ LONDSTARServer <- function(input, output, session, data) {
     if(!is.null(data())){
       shiny::showModal(modalDialog("Running algorithm..."))
     }
-    output <- myLONDstar(d = data(),
+    output <- LONDstar(d = data(),
                          alpha = alpha,
                          version = version)
     shiny::removeModal()
@@ -2130,27 +2125,22 @@ LONDSTARServer <- function(input, output, session, data) {
   
   # remove placeholder text
   observeEvent(input$go, {
+    
     if(input$go == 0){
       shinyjs::show(id = "placeholder")
       shinyjs::show(id = "placeholder2")
-    } else if(input$go > 0 && !is.data.frame(data)) {
-      shinyjs::show(id = "placeholder")
-      shinyjs::show(id = "placeholder2")
-    } 
-    else {
+    } else if(input$go > 0 && !is.null(data())) {
       shinyjs::hide(id = "placeholder")
       shinyjs::hide(id = "placeholder2")
+    } 
+    else {
+      shinyjs::show(id = "placeholder")
+      shinyjs::show(id = "placeholder2")
     }
+    
   })
   
   # output no data loaded error message
-  observeEvent(input$go, {
-    if(!is.data.frame(data)) {
-      shiny::showNotification("Please upload a dataset first!", type = "err")
-    }
-  })
-  
-  # Output error messages
   observeEvent(input$go, {
     if(!is.null(data())){
       tryCatch({
@@ -2235,13 +2225,27 @@ LONDSTARtableServer <- function(input, output, session, LONDSTARresult) {
 }
 
 LONDSTARcountServer <- function(input, output, session, LONDSTARresult) {
-  output$count <- renderUI({
+  ns <- session$ns
+  #toggle download button
+  observe({
+    toggle(id = "downloadbutton")
+  })
+  
+  output$count <- renderUI({  
+    
     data <- LONDSTARresult$LONDSTARres()
     if(sum(data$R) == 1) {
       div(
-        id = "test",
         set_html_breaks(10),
-        paste0("1 null hypothesis was rejected"),
+        paste0("1 null hypothesis was rejected. See full results by downloading below"),
+        set_html_breaks(2),
+        shinyWidgets::downloadBttn(
+          outputId = ns("download"),
+          label = "Download results",
+          style = "fill",
+          color = "primary",
+          size = "sm"
+        ),
         style = "text-align: center;
     vertical-align: middle;
     font-family: Poppins, sans-serif;
@@ -2249,16 +2253,36 @@ LONDSTARcountServer <- function(input, output, session, LONDSTARresult) {
       )
     } else {
       div(
-        id = "test2",
         set_html_breaks(10),
-        paste0(sum(data$R), " null hypotheses were rejected"),
+        paste0(sum(data$R), " null hypotheses were rejected. See full results by downloading below"),
+        set_html_breaks(2),
+        shinyWidgets::downloadBttn(
+          outputId = ns("download"),
+          label = "Download results",
+          style = "fill",
+          color = "primary",
+          size = "sm"
+        ),
         style = "text-align: center;
-    vertical-align: middle;
-    font-family: Poppins, sans-serif;
-    font-size: 18px"
+        vertical-align: middle;
+        font-family: Poppins, sans-serif;
+        font-size: 18px;
+        .shiny-download-link{
+        width: 250px;
+        }
+        "
       )
     }
   })
+  
+  output$download <- downloadHandler(
+    filename = function() {
+      paste("LONDSTAR-", Sys.Date(), ".csv", sep = "")
+    },
+    content = function(file) {
+      write_csv(LONDSTARresult$LONDSTARres(), file)
+    }
+  )
 }
 
 LONDSTARplotServer <- function(input, output, session, LONDSTARresult) {
@@ -2378,10 +2402,10 @@ LORDSTARServer <- function(input, output, session, data) {
     if(!is.null(data())){
       shiny::showModal(modalDialog("Running algorithm..."))
     }
-    output <- myLORDstar(d = data(),
-                         alpha = alpha,
-                         version = version,
-                         w0 = w0)
+    output <- LORDstar(d = data(),
+                       alpha = alpha,
+                       version = version,
+                       w0 = w0)
     shiny::removeModal()
     
     output
@@ -2404,27 +2428,22 @@ LORDSTARServer <- function(input, output, session, data) {
   
   # remove placeholder text
   observeEvent(input$go, {
+    
     if(input$go == 0){
       shinyjs::show(id = "placeholder")
       shinyjs::show(id = "placeholder2")
-    } else if(input$go > 0 && !is.data.frame(data)) {
-      shinyjs::show(id = "placeholder")
-      shinyjs::show(id = "placeholder2")
-    } 
-    else {
+    } else if(input$go > 0 && !is.null(data())) {
       shinyjs::hide(id = "placeholder")
       shinyjs::hide(id = "placeholder2")
+    } 
+    else {
+      shinyjs::show(id = "placeholder")
+      shinyjs::show(id = "placeholder2")
     }
+    
   })
   
   # output no data loaded error message
-  observeEvent(input$go, {
-    if(!is.data.frame(data)) {
-      shiny::showNotification("Please upload a dataset first!", type = "err")
-    }
-  })
-  
-  # Output error messages
   observeEvent(input$go, {
     if(!is.null(data())){
       tryCatch({
@@ -2509,13 +2528,27 @@ LORDSTARtableServer <- function(input, output, session, LORDSTARresult) {
 }
 
 LORDSTARcountServer <- function(input, output, session, LORDSTARresult) {
-  output$count <- renderUI({
+  ns <- session$ns
+  #toggle download button
+  observe({
+    toggle(id = "downloadbutton")
+  })
+  
+  output$count <- renderUI({  
+    
     data <- LORDSTARresult$LORDSTARres()
     if(sum(data$R) == 1) {
       div(
-        id = "test",
         set_html_breaks(10),
-        paste0("1 null hypothesis was rejected"),
+        paste0("1 null hypothesis was rejected. See full results by downloading below"),
+        set_html_breaks(2),
+        shinyWidgets::downloadBttn(
+          outputId = ns("download"),
+          label = "Download results",
+          style = "fill",
+          color = "primary",
+          size = "sm"
+        ),
         style = "text-align: center;
     vertical-align: middle;
     font-family: Poppins, sans-serif;
@@ -2523,16 +2556,36 @@ LORDSTARcountServer <- function(input, output, session, LORDSTARresult) {
       )
     } else {
       div(
-        id = "test2",
         set_html_breaks(10),
-        paste0(sum(data$R), " null hypotheses were rejected"),
+        paste0(sum(data$R), " null hypotheses were rejected. See full results by downloading below"),
+        set_html_breaks(2),
+        shinyWidgets::downloadBttn(
+          outputId = ns("download"),
+          label = "Download results",
+          style = "fill",
+          color = "primary",
+          size = "sm"
+        ),
         style = "text-align: center;
-    vertical-align: middle;
-    font-family: Poppins, sans-serif;
-    font-size: 18px"
+        vertical-align: middle;
+        font-family: Poppins, sans-serif;
+        font-size: 18px;
+        .shiny-download-link{
+        width: 250px;
+        }
+        "
       )
     }
   })
+  
+  output$download <- downloadHandler(
+    filename = function() {
+      paste("LORDSTAR-", Sys.Date(), ".csv", sep = "")
+    },
+    content = function(file) {
+      write_csv(LORDSTARresult$LORDSTARres(), file)
+    }
+  )
 }
 
 LORDSTARplotServer <- function(input, output, session, LORDSTARresult) {
@@ -2689,7 +2742,7 @@ SAFFRONSTARServer <- function(input, output, session, data) {
       shiny::showModal(modalDialog("Running algorithm..."))
     }
     
-    output <- mySAFFRONstar(pval = data(),
+    output <- SAFFRONstar(d = data(),
                           alpha = alpha,
                           version = version,
                           w0 = w0,
@@ -2718,27 +2771,22 @@ SAFFRONSTARServer <- function(input, output, session, data) {
   
   # remove placeholder text
   observeEvent(input$go, {
+    
     if(input$go == 0){
       shinyjs::show(id = "placeholder")
       shinyjs::show(id = "placeholder2")
-    } else if(input$go > 0 && !is.data.frame(data)) {
-      shinyjs::show(id = "placeholder")
-      shinyjs::show(id = "placeholder2")
-    } 
-    else {
+    } else if(input$go > 0 && !is.null(data())) {
       shinyjs::hide(id = "placeholder")
       shinyjs::hide(id = "placeholder2")
+    } 
+    else {
+      shinyjs::show(id = "placeholder")
+      shinyjs::show(id = "placeholder2")
     }
+    
   })
   
   # output no data loaded error message
-  observeEvent(input$go, {
-    if(!is.data.frame(data)) {
-      shiny::showNotification("Please upload a dataset first!", type = "err")
-    }
-  })
-  
-  # Output error messages
   observeEvent(input$go, {
     if(!is.null(data())){
       tryCatch({
@@ -2823,13 +2871,27 @@ SAFFRONSTARtableServer <- function(input, output, session, SAFFRONSTARresult) {
 }
 
 SAFFRONSTARcountServer <- function(input, output, session, SAFFRONSTARresult) {
-  output$count <- renderUI({
+  ns <- session$ns
+  #toggle download button
+  observe({
+    toggle(id = "downloadbutton")
+  })
+  
+  output$count <- renderUI({  
+    
     data <- SAFFRONSTARresult$SAFFRONSTARres()
     if(sum(data$R) == 1) {
       div(
-        id = "test",
         set_html_breaks(10),
-        paste0("1 null hypothesis was rejected"),
+        paste0("1 null hypothesis was rejected. See full results by downloading below"),
+        set_html_breaks(2),
+        shinyWidgets::downloadBttn(
+          outputId = ns("download"),
+          label = "Download results",
+          style = "fill",
+          color = "primary",
+          size = "sm"
+        ),
         style = "text-align: center;
     vertical-align: middle;
     font-family: Poppins, sans-serif;
@@ -2837,16 +2899,36 @@ SAFFRONSTARcountServer <- function(input, output, session, SAFFRONSTARresult) {
       )
     } else {
       div(
-        id = "test2",
         set_html_breaks(10),
-        paste0(sum(data$R), " null hypotheses were rejected"),
+        paste0(sum(data$R), " null hypotheses were rejected. See full results by downloading below"),
+        set_html_breaks(2),
+        shinyWidgets::downloadBttn(
+          outputId = ns("download"),
+          label = "Download results",
+          style = "fill",
+          color = "primary",
+          size = "sm"
+        ),
         style = "text-align: center;
-    vertical-align: middle;
-    font-family: Poppins, sans-serif;
-    font-size: 18px"
+        vertical-align: middle;
+        font-family: Poppins, sans-serif;
+        font-size: 18px;
+        .shiny-download-link{
+        width: 250px;
+        }
+        "
       )
     }
   })
+  
+  output$download <- downloadHandler(
+    filename = function() {
+      paste("SAFFRONSTAR-", Sys.Date(), ".csv", sep = "")
+    },
+    content = function(file) {
+      write_csv(SAFFRONSTARresult$SAFFRONSTARres(), file)
+    }
+  )
 }
 
 SAFFRONSTARplotServer <- function(input, output, session, SAFFRONSTARresult) {
