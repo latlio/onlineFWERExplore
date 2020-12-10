@@ -9,13 +9,16 @@ fluidPage(
     h1("User Guide"),
     bsplus::bs_accordion(id = "guide") %>%
       bs_set_opts(panel_type = "primary", use_heading_link = T) %>%
-      bs_append(title = "Introduction", content = HTML("This application is designed to allow users to interactively run procedures that control the False Discovery Rate (FDR) for online hypothesis testing. Source code and additional information for this application are available via <a href=\"https://github.com/dsrobertson/onlineFDRGitHub\">GitHub</a>.")) %>%
+      bs_append(title = "Introduction", content = HTML("This application is designed to allow users to interactively run procedures that control the False Discovery Rate (FDR) for online hypothesis testing. Source code and additional information for this application are available via <a href=\"https://github.com/dsrobertson/onlineFDR\">GitHub</a>.")) %>%
       bs_append(title = "Application usage", content = p(
         img(src = "user-diagram.png"),
         br(),
         "For more information, check out the", a(href = "https://dsrobertson.github.io/onlineFDR/articles/onlineFDR.html", "Get Started"), "page in our vignette."))  %>%
       bs_append(title = "Synchronous vs Asynchronous", content = p(
-        "Synchronous algorithms are designed to be used for a sequence of tests in which each test can only start when the previous test has finished. Asynchronous algorithms are designed to be used when tests overlap in time. The asynchronous setting may be more realistic since tests are often performed to overlap to gain time efficiency and because of difficulties of coordination in a large-scale, decentralized setting.",
+        style="text-align: left",
+        "Synchronous algorithms are designed to be used for a sequence of tests in which each test can only start when the previous test has finished.",
+        br(),
+        "Asynchronous algorithms are designed to be used when tests overlap in time. The asynchronous setting may be more realistic since tests are often performed to overlap to gain time efficiency and because of difficulties of coordination in a large-scale, decentralized setting.",
         img(src = "sync-diagram.png")
       )) %>%
       bs_append(title = "Help & feedback", content = HTML("For additional help or to submit feedback or bug reports,
@@ -51,7 +54,7 @@ fluidPage(
                shinyWidgets::radioGroupButtons("size", NULL, c(50, 100, 1000))
         ),
         column(4,
-               strong("Proportion"),
+               strong("Proportion of expected non-null hypotheses"),
                shiny::sliderInput("prop", NULL, min = 0.1, max = 1, value = 0.5, step = 0.1),
                shinyBS::bsTooltip("prop",
                                   "Proportion of true non-null hypotheses",
@@ -60,8 +63,8 @@ fluidPage(
         ),
         column(4,
                align = "right",
-               strong("Bound status"),
-               shinyWidgets::radioGroupButtons("bound", NULL, c("Bounded", "Unbounded"))
+               strong("Number of expected p-values"),
+               shinyWidgets::radioGroupButtons("bound", NULL, c("Known", "Infinite"))
         )
       ),
       fluidRow(

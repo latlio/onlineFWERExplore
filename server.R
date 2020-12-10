@@ -157,7 +157,7 @@ server <- function(input, output, session) {
 
   filter_data <- reactive({
     size = as.numeric(input$size)
-    boundstat = ifelse(input$bound == "Bounded", 1, 0)
+    boundstat = ifelse(input$bound == "Known", 1, 0)
     out <- demodata %>%
       filter(n == size,
              bound == boundstat,

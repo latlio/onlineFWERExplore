@@ -323,10 +323,19 @@ LONDcountServer <- function(input, output, session, LONDresult) {
 
   output$download <- downloadHandler(
     filename = function() {
-      paste("LOND-", Sys.Date(), ".csv", sep = "")
+      paste("LOND-", Sys.Date(), ".zip", sep = "")
     },
     content = function(file) {
-      write_csv(LONDresult$LONDres(), file)
+      owd <- setwd(tempdir())
+      on.exit(setwd(owd))
+      files <- NULL;
+      
+      filename <- paste("LOND-", Sys.Date(), ".csv", sep = "")
+      write_csv(LONDresult$LONDres(), filename)
+      R_session <- paste("LOND-", Sys.Date(), "sessioninfo.txt", sep = "")
+      writeLines(capture.output(sessionInfo()), R_session)
+      files <- c(filename, R_session)
+      zip(file, files)
     }
   )
 }
@@ -759,10 +768,19 @@ LORDcountServer <- function(input, output, session, LORDresult) {
   
   output$download <- downloadHandler(
     filename = function() {
-      paste("LORD-", Sys.Date(), ".csv", sep = "")
+      paste("LORD-", Sys.Date(), ".zip", sep = "")
     },
     content = function(file) {
-      write_csv(LORDresult$LORDres(), file)
+      owd <- setwd(tempdir())
+      on.exit(setwd(owd))
+      files <- NULL;
+      
+      filename <- paste("LORD-", Sys.Date(), ".csv", sep = "")
+      write_csv(LORDresult$LORDres(), filename)
+      R_session <- paste("LORD-", Sys.Date(), "sessioninfo.txt", sep = "")
+      writeLines(capture.output(sessionInfo()), R_session)
+      files <- c(filename, R_session)
+      zip(file, files)
     }
   )
 }
@@ -1146,10 +1164,19 @@ SAFFRONcountServer <- function(input, output, session, SAFFRONresult) {
   
   output$download <- downloadHandler(
     filename = function() {
-      paste("SAFFRON-", Sys.Date(), ".csv", sep = "")
+      paste("SAFFRON-", Sys.Date(), ".zip", sep = "")
     },
     content = function(file) {
-      write_csv(SAFFRONresult$SAFFRONres(), file)
+      owd <- setwd(tempdir())
+      on.exit(setwd(owd))
+      files <- NULL;
+      
+      filename <- paste("SAFFRON-", Sys.Date(), ".csv", sep = "")
+      write_csv(SAFFRONresult$SAFFRONres(), filename)
+      R_session <- paste("SAFFRON-", Sys.Date(), "sessioninfo.txt", sep = "")
+      writeLines(capture.output(sessionInfo()), R_session)
+      files <- c(filename, R_session)
+      zip(file, files)
     }
   )
 }
@@ -1526,10 +1553,19 @@ ADDIScountServer <- function(input, output, session, ADDISresult) {
   
   output$download <- downloadHandler(
     filename = function() {
-      paste("ADDIS-", Sys.Date(), ".csv", sep = "")
+      paste("ADDIS-", Sys.Date(), ".zip", sep = "")
     },
     content = function(file) {
-      write_csv(ADDISresult$ADDISres(), file)
+      owd <- setwd(tempdir())
+      on.exit(setwd(owd))
+      files <- NULL;
+      
+      filename <- paste("ADDIS-", Sys.Date(), ".csv", sep = "")
+      write_csv(ADDISresult$ADDISres(), filename)
+      R_session <- paste("ADDIS-", Sys.Date(), "sessioninfo.txt", sep = "")
+      writeLines(capture.output(sessionInfo()), R_session)
+      files <- c(filename, R_session)
+      zip(file, files)
     }
   )
 }
@@ -2011,10 +2047,19 @@ alphainvestingcountServer <- function(input, output, session, alphainvestingresu
   
   output$download <- downloadHandler(
     filename = function() {
-      paste("alphainvesting-", Sys.Date(), ".csv", sep = "")
+      paste("alphainvesting-", Sys.Date(), ".zip", sep = "")
     },
     content = function(file) {
-      write_csv(alphainvestingresult$alphainvestingres(), file)
+      owd <- setwd(tempdir())
+      on.exit(setwd(owd))
+      files <- NULL;
+      
+      filename <- paste("alphainvesting-", Sys.Date(), ".csv", sep = "")
+      write_csv(alphainvestingresult$alphainvestingres(), filename)
+      R_session <- paste("alphainvesting-", Sys.Date(), "sessioninfo.txt", sep = "")
+      writeLines(capture.output(sessionInfo()), R_session)
+      files <- c(filename, R_session)
+      zip(file, files)
     }
   )
 }
@@ -2327,10 +2372,19 @@ LONDSTARcountServer <- function(input, output, session, LONDSTARresult) {
   
   output$download <- downloadHandler(
     filename = function() {
-      paste("LONDSTAR-", Sys.Date(), ".csv", sep = "")
+      paste("LONDSTAR-", Sys.Date(), ".zip", sep = "")
     },
     content = function(file) {
-      write_csv(LONDSTARresult$LONDSTARres(), file)
+      owd <- setwd(tempdir())
+      on.exit(setwd(owd))
+      files <- NULL;
+      
+      filename <- paste("LONDSTAR-", Sys.Date(), ".csv", sep = "")
+      write_csv(LONDSTARresult$LONDSTARres(), filename)
+      R_session <- paste("LONDSTAR-", Sys.Date(), "sessioninfo.txt", sep = "")
+      writeLines(capture.output(sessionInfo()), R_session)
+      files <- c(filename, R_session)
+      zip(file, files)
     }
   )
 }
@@ -2630,10 +2684,19 @@ LORDSTARcountServer <- function(input, output, session, LORDSTARresult) {
   
   output$download <- downloadHandler(
     filename = function() {
-      paste("LORDSTAR-", Sys.Date(), ".csv", sep = "")
+      paste("LORDSTAR-", Sys.Date(), ".zip", sep = "")
     },
     content = function(file) {
-      write_csv(LORDSTARresult$LORDSTARres(), file)
+      owd <- setwd(tempdir())
+      on.exit(setwd(owd))
+      files <- NULL;
+      
+      filename <- paste("LORDSTAR-", Sys.Date(), ".csv", sep = "")
+      write_csv(LORDSTARresult$LORDSTARres(), filename)
+      R_session <- paste("LORDSTAR-", Sys.Date(), "sessioninfo.txt", sep = "")
+      writeLines(capture.output(sessionInfo()), R_session)
+      files <- c(filename, R_session)
+      zip(file, files)
     }
   )
 }
@@ -2973,10 +3036,19 @@ SAFFRONSTARcountServer <- function(input, output, session, SAFFRONSTARresult) {
   
   output$download <- downloadHandler(
     filename = function() {
-      paste("SAFFRONSTAR-", Sys.Date(), ".csv", sep = "")
+      paste("SAFFRONSTAR-", Sys.Date(), ".zip", sep = "")
     },
     content = function(file) {
-      write_csv(SAFFRONSTARresult$SAFFRONSTARres(), file)
+      owd <- setwd(tempdir())
+      on.exit(setwd(owd))
+      files <- NULL;
+      
+      filename <- paste("SAFFRONSTAR-", Sys.Date(), ".csv", sep = "")
+      write_csv(SAFFRONSTARresult$SAFFRONSTARres(), filename)
+      R_session <- paste("SAFFRONSTAR-", Sys.Date(), "sessioninfo.txt", sep = "")
+      writeLines(capture.output(sessionInfo()), R_session)
+      files <- c(filename, R_session)
+      zip(file, files)
     }
   )
 }
