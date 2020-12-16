@@ -48,4 +48,6 @@ library(onlineFDR)
 source("ui.R")
 source("server.R")
 
+# enableBookmarking(store = "server")
+
 # runApp(shinyApp(ui, server), launch.browser = TRUE)
