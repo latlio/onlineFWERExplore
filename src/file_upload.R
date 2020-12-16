@@ -9,7 +9,8 @@ fluidPage(
     h1("User Guide"),
     bsplus::bs_accordion(id = "guide") %>%
       bs_set_opts(panel_type = "primary", use_heading_link = T) %>%
-      bs_append(title = "Introduction", content = HTML("This application is designed to allow users to interactively run procedures that control the False Discovery Rate (FDR) for online hypothesis testing. Source code and additional information for this application are available via <a href=\"https://github.com/dsrobertson/onlineFDR\">GitHub</a>.")) %>%
+      bs_append(title = "Introduction", content = HTML("This application is designed to allow users to interactively run procedures that control the Family-wise Error Rate (FWER) for online hypothesis testing. Source code and additional information for this application are available via <a href=\"https://github.com/dsrobertson/onlineFDR\">GitHub</a>.")) %>%
+      bs_append(title = "FDR vs FWER", content = HTML("FDR is the expected proportion of false rejections out of all rejections. FWER is the probability of making any Type I errors at all. Controlling the FWER is generally more conservative than controlling the FDR. Note that in the case when all null hypotheses are true, the FDR and FWER are the same. For the FDR Explore app, click <a href=\"https://mrc-bsu.shinyapps.io/onlineFDRExplore\">here</a>")) %>%
       bs_append(title = "Application usage", content = p(
         img(src = "user-diagram.png"),
         br(),
