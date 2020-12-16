@@ -2,7 +2,7 @@
 # Server logic of the Shiny app
 #
 # Author: Lathan Liou
-# Created: Fri Sep 18 09:57:20 2020 ------------------------------
+# Created: Wed Dec 16 12:03:20 2020 ------------------------------
 ################################################################################
 source("src/server-mods.R")
 # source("src/router.R")
@@ -37,10 +37,6 @@ library(lubridate)
 # devtools::install_github("https://github.com/dsrobertson/onlineFDR")
 # library(StanHeaders)
 library(onlineFDR)
-
-#for alg recommendation feature
-demodata <- read_csv("powerFDRdata.csv") %>%
-  mutate(pi.vec = round(pi.vec, 2))
 
 #for hover functionality
 with_tooltip <- function(value, tooltip, ...) {
@@ -90,98 +86,24 @@ server <- function(input, output, session) {
     }
   })
 
-  #### LOND ####
+  #### ADDIS Spending ####
   
-  LOND_result <- callModule(LONDServer, id = "inputLOND", data = in_data)
-  callModule(LONDcountServer, "LONDcount", LOND_result)
-  callModule(LONDplotServer, "LONDplot", LOND_result)
-  callModule(LONDcompServer, "LONDcomp", LOND_result, data = in_data)
+  ADDIS_spending_result <- callModule(ADDIS_spending_Server, id = "inputADDIS_spending", data = in_data)
+  callModule(ADDIS_spending_countServer, "ADDIS_spending_count", ADDIS_spending_result)
+  callModule(ADDIS_spending_plotServer, "ADDIS_spending_plot", ADDIS_spending_result)
+  callModule(ADDIS_spending_compServer, "ADDIS_spending_comp", ADDIS_spending_result, data = in_data)
 
-  #### LORD ####
+  #### Alpha Spending ####
   
-  LORD_result <- callModule(LORDServer, id = "inputLORD", data = in_data)
-  callModule(LORDcountServer, "LORDcount", LORD_result)
-  callModule(LORDplotServer, "LORDplot", LORD_result)
-  callModule(LORDcompServer, "LORDcomp", LORD_result, data = in_data)
+  Alpha_spending_result <- callModule(Alpha_spending_Server, id = "inputAlpha_spending", data = in_data)
+  callModule(Alpha_spending_countServer, "Alpha_spending_count", Alpha_spending_result)
+  callModule(Alpha_spending_plotServer, "Alpha_spending_plot", Alpha_spending_result)
+  callModule(Alpha_spending_compServer, "Alpha_spending_comp", Alpha_spending_result, data = in_data)
   
-  # gray out inputs conditionally
-  shinyjs::onclick("advanced2",
-                   shinyjs::toggle(id = "advanced2", anim = TRUE))
+  #### online fallback ####
   
-  #### SAFFRON ####
-  SAFFRON_result <- callModule(SAFFRONServer, id = "inputSAFFRON", data = in_data)
-  callModule(SAFFRONcountServer, "SAFFRONcount", SAFFRON_result)
-  callModule(SAFFRONplotServer, "SAFFRONplot", SAFFRON_result)
-  callModule(SAFFRONcompServer, "SAFFRONcomp", SAFFRON_result, data = in_data)
-  
-  #### ADDIS Sync ####
-  ADDIS_result <- callModule(ADDISServer, id = "inputADDIS", data = in_data)
-  callModule(ADDIScountServer, "ADDIScount", ADDIS_result)
-  callModule(ADDISplotServer, "ADDISplot", ADDIS_result)
-  callModule(ADDIScompServer, "ADDIScomp", ADDIS_result, data = in_data)
-  
-  #### Alpha-Investing ####
-  alphainvesting_result <- callModule(alphainvestingServer, id = "inputalphainvesting", data = in_data)
-  callModule(alphainvestingcountServer, "alphainvestcount", alphainvesting_result)
-  callModule(alphainvestingplotServer, "alphainvestplot", alphainvesting_result)
-  callModule(alphainvestingcompServer, "alphainvestcomp", alphainvesting_result, data = in_data)
-  
-  #### ADDIS Async ####
-  ADDISa_result <- callModule(ADDISServer, id = "inputADDISa", data = in_data)
-  callModule(ADDIScountServer, "ADDISacount", ADDIS_result)
-  callModule(ADDISplotServer, "ADDISaplot", ADDIS_result)
-  callModule(ADDIScompServer, "ADDISacomp", ADDIS_result, data = in_data)
-  
-  #### LONDstar ####
-  LONDSTAR_result <- callModule(LONDSTARServer, id = "inputLONDSTAR", data = in_data)
-  callModule(LONDSTARcountServer, "LONDSTARcount", LONDSTAR_result)
-  callModule(LONDSTARplotServer, "LONDSTARplot", LONDSTAR_result)
-  callModule(LONDSTARcompServer, "LONDSTARcomp", LONDSTAR_result, data = in_data)
-  
-  #### LORDstar ####
-  LORDSTAR_result <- callModule(LORDSTARServer, id = "inputLORDSTAR", data = in_data)
-  callModule(LORDSTARcountServer, "LORDSTARcount", LORDSTAR_result)
-  callModule(LORDSTARplotServer, "LORDSTARplot", LORDSTAR_result)
-  callModule(LORDSTARcompServer, "LORDSTARcomp", LORDSTAR_result, data = in_data)
-  
-  #### SAFFRONstar ####
-  SAFFRONSTAR_result <- callModule(SAFFRONSTARServer, id = "inputSAFFRONSTAR", data = in_data)
-  callModule(SAFFRONSTARcountServer, "SAFFRONSTARcount", SAFFRONSTAR_result)
-  callModule(SAFFRONSTARplotServer, "SAFFRONSTARplot", SAFFRONSTAR_result)
-  callModule(SAFFRONSTARcompServer, "SAFFRONSTARcomp", SAFFRONSTAR_result, data = in_data)
-  
-  #### get started page ####
-  observe({
-    toggle(id = "novice", condition = input$checkbox)
-  })
-
-  filter_data <- reactive({
-    size = as.numeric(input$size)
-    boundstat = ifelse(input$bound == "Known", 1, 0)
-    out <- demodata %>%
-      filter(n == size,
-             bound == boundstat,
-             pi.vec == input$prop) %>%
-      select(-c(pi.vec, n, bound)) %>%
-      arrange(desc(power))
-  })
-  
-  output$demores <- renderText({
-  paste(filter_data() %>%
-          head(1) %>%
-          pull(procedure), "has the highest power.")
-  })
-  
-  # output$saffronwarn <- renderText({
-  #   if(input$size == 1000 & input$prop > 0.5) {
-  #     paste("Using SAFFRON may overestimate the FDR.")
-  #   }
-  # })
-  
-  output$addiswarn <- renderText({
-    if(input$size == 100 & input$prop == 0.4 | 
-       input$size == 1000 & input$prop < 0.5 & input$prop > 0.2) {
-      paste("Using ADDIS on a dataset > 100,000 may be too slow. Using onlineFDR::ADDIS() is recommended. ")
-    }
-  })
+  online_fallback_result <- callModule(online_fallback_Server, id = "inputonline_fallback", data = in_data)
+  callModule(online_fallback_countServer, "online_fallback_count", online_fallback_result)
+  callModule(online_fallback_plotServer, "online_fallback_plot", online_fallback_result)
+  callModule(online_fallback_compServer, "online_fallback_comp", online_fallback_result, data = in_data)
 }

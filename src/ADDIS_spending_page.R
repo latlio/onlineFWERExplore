@@ -1,8 +1,8 @@
 ################################################################################
-# LOND Page
+# ADDIS Spending Page
 #
 # Author: Lathan Liou
-# Created: Fri Sep 18 10:18:13 2020 ------------------------------
+# Created: Wed Dec 16 11:58:28 2020 ------------------------------
 ################################################################################
 
 shiny::fluidRow(
@@ -11,7 +11,7 @@ shiny::fluidRow(
   shiny::column(4,
          
          box(
-           title = strong("LOND"),
+           title = strong("ADDIS Spending"),
            status = "primary",
            solidHeader = TRUE,
            tags$style(HTML("
@@ -28,7 +28,7 @@ border-top-color:#ffffff;
 }
                                     ")),
            width = 12,
-           LONDUI("inputLOND")
+           ADDIS_spending_UI("inputADDIS_spending")
          )
   ), ## close column 1
   
@@ -36,17 +36,16 @@ border-top-color:#ffffff;
   shiny::column(8,
                 shiny::tabsetPanel(
                   shiny::tabPanel("Summary",
-                                  placeholderUI("inputLOND"),
-                                  summaryUI("LONDcount")),
+                                  placeholderUI("inputADDIS_spending"),
+                                  summaryUI("ADDIS_spending_count")),
                   shiny::tabPanel("Plot",
-                                  placeholder2UI("inputLOND"),
-                                  plotUI("LONDplot")),
+                                  placeholder2UI("inputADDIS_spending"),
+                                  plotUI("ADDIS_spending_plot")),
                   shiny::tabPanel("Compare",
-                                  compareUI("LONDcomp")),
+                                  compareUI("ADDIS_spending_comp")),
                   shiny::tabPanel("Help", withMathJax(),
-                                  HTML(markdown::markdownToHTML(knit("src/LOND_code.Rmd", quiet = T))))
+                                  HTML(markdown::markdownToHTML(knit("src/ADDIS_spending_code.Rmd", quiet = T))))
                 ) ## close tabset panel
-                
   ) ## close column
   
 ) ##close fluid row

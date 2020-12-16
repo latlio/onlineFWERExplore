@@ -2,7 +2,7 @@
 # UI of the Shiny app
 #
 # Author: Lathan Liou
-# Created: Fri Sep 18 09:50:19 2020 ------------------------------
+# Created: Wed Dec 16 12:01:08 2020 ------------------------------
 ################################################################################
 source("src/ui-mods.R")
 # source("src/router.R")
@@ -48,7 +48,7 @@ ui <- shiny::fluidPage(
       waiter::use_waiter(),
       sever::use_sever(),
       waiter::waiter_show_on_load(html = tagList(waiter::spin_fading_circles(),
-                                                 "Initializing onlineFDRExplore")),
+                                                 "Initializing onlineFWERExplore")),
       tags$head(
         tags$script(src = "src/JSModule.js"),
         tags$style(HTML("
@@ -60,44 +60,22 @@ ui <- shiny::fluidPage(
                    ".h1 {font-family: Lato;}",
                    ".p {font-family: Lato;}")
       ),
-      # tags$ul(
-      #   tags$li(a(href = route_link("lond"), "LOND"))
-      # ),
-      # router$ui,
       ####make the navbar pages####
-      shiny::navbarPage(HTML(paste0("onlineFDR", tags$sub("explore"))),
-                        windowTitle = "onlineFDRExplore",
+      shiny::navbarPage(HTML(paste0("onlineFWER", tags$sub("explore"))),
+                        windowTitle = "onlineFWERExplore",
                         shiny::tabPanel("Get Started",
                                         source("src/file_upload.R")$value),
-                        shiny::navbarMenu("Synchronous",
-                                          shiny::tabPanel("LOND",
-                                                          source("src/LOND_page.R")$value),
-                                          shiny::tabPanel("LORD",
-                                                          source("src/LORD_page.R")$value), #close tabPanel
-                                          shiny::tabPanel("SAFFRON",
-                                                          source("src/SAFFRON_page.R")$value), #close tabPanel
-                                          shiny::tabPanel("ADDIS",
-                                                          source("src/ADDIS_page.R")$value), #close tabPanel
-                                          shiny::tabPanel("Alpha-investing",
-                                                          source("src/Alpha_investing_page.R")$value), #close
+                        shiny::navbarMenu("Algorithms",
+                                          shiny::tabPanel("ADDIS Spending",
+                                                          source("src/ADDIS_spending_page.R")$value),
+                                          shiny::tabPanel("Alpha Spending",
+                                                          source("src/Alpha_spending_page.R")$value), #close tabPanel
+                                          shiny::tabPanel("Online Fallback",
+                                                          source("src/online_fallback_page.R")$value),
                                           tags$style(type="text/css",
                                                      ".shiny-output-error { visibility: hidden; }",
                                                      ".shiny-output-error:before { visibility: hidden; }")
                         ),# close navbarMenu
-                        
-                        shiny::navbarMenu("Asynchronous",
-                                          shiny::tabPanel("LONDstar",
-                                                          source("src/LONDstar_page.R")$value), #close
-                                          shiny::tabPanel("LORDstar",
-                                                          source("src/LORDstar_page.R")$value), #close
-                                          shiny::tabPanel("SAFFRONstar",
-                                                          source("src/SAFFRONstar_page.R")$value), #close
-                                          shiny::tabPanel("ADDIS",
-                                                          source("src/ADDIS_async_page.R")$value), #close tabPanel
-                                          tags$style(type="text/css",
-                                                     ".shiny-output-error { visibility: hidden; }",
-                                                     ".shiny-output-error:before { visibility: hidden; }")
-                        ), #close navbarmenu
                         shiny::tabPanel("About",
                                         source("src/about_page.R")$value)
       ) ##close navbarpage
