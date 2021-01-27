@@ -43,6 +43,7 @@ fluidPage(
     ),
     column(
       width = 4,
+      align = "center",
       uiOutput("showjump")
     )
   )

@@ -9,87 +9,17 @@ set_html_breaks <- function(n) {
   HTML(strrep(br(), n))
 }
 
-#### FUNCTION FACTORY ####
-make_count_server_function <- function(algorithm_result, file_string) {
-  force(file_string)
-  count_server_function <- function(input, output, session) {
-    ns <- session$ns
-    #toggle download button
-    observe({
-      toggle(id = "downloadbutton")
-    })
-    
-    output$count <- renderUI({  
-      
-      data <- algorithm_result[[1]]
-      if(sum(data$R) == 1) {
-        div(
-          set_html_breaks(10),
-          paste0("1 null hypothesis was rejected. See full results by downloading below"),
-          set_html_breaks(2),
-          shinyWidgets::downloadBttn(
-            outputId = ns("download"),
-            label = "Download results",
-            style = "fill",
-            color = "primary",
-            size = "sm"
-          ),
-          style = "text-align: center;
-    vertical-align: middle;
-    font-family: Poppins, sans-serif;
-    font-size: 18px"
-        )
-      } else {
-        div(
-          set_html_breaks(10),
-          paste0(sum(data$R), " null hypotheses were rejected. See full results by downloading below"),
-          set_html_breaks(2),
-          shinyWidgets::downloadBttn(
-            outputId = ns("download"),
-            label = "Download results",
-            style = "fill",
-            color = "primary",
-            size = "sm"
-          ),
-          style = "text-align: center;
-        vertical-align: middle;
-        font-family: Poppins, sans-serif;
-        font-size: 18px;
-        .shiny-download-link{
-        width: 250px;
-        }
-        "
-        )
-      }
-    })
-    
-    output$download <- downloadHandler(
-      filename = function() {
-        paste(file_string, Sys.Date(), ".csv", sep = "")
-      },
-      content = function(file) {
-        write_csv(algorithm_result[[1]], file)
-      }
-    )
-  }
-  return(count_server_function)
-}
-
-#### ALGS ####
-
+#### ALG SERVERS ####
 ADDIS_spending_Server <- function(input, output, session, data) {
   ns <- session$ns
   
   # Run ADDIS spending algorithm
-  ADDIS_spending_res <- eventReactive(input$go, {
+  ADDIS_spending_res <- reactive({
     
     #check parameters
     alpha = as.numeric(input$alpha)
-    req(input$alpha)
     lambda = as.numeric(input$lambda)
-    req(input$lambda)
     tau = as.numeric(input$tau)
-    req(input$tau)
     dep = ifelse(input$dep == "True", T, F)
     seed = as.numeric(input$seed)
     
@@ -142,7 +72,7 @@ ADDIS_spending_Server <- function(input, output, session, data) {
     )
     
     if(!is.null(data())){
-      shiny::showModal(modalDialog("Running algorithm..."))
+      # shiny::showModal(modalDialog("Running algorithm..."))
     }
     
     out <- ADDIS_spending(d = data(),
@@ -152,8 +82,13 @@ ADDIS_spending_Server <- function(input, output, session, data) {
                           dep = dep)
     shiny::removeModal()
     
-    return(out)
-  }) #close eventReactive
+    out
+  }) %>% #close eventReactive
+    bindCache(input$alpha,
+              input$lambda,
+              input$tau,
+              input$dep) %>%
+    bindEvent(input$go)
   
   #toggle advanced options
   observe({
@@ -161,14 +96,13 @@ ADDIS_spending_Server <- function(input, output, session, data) {
   })
   
   #record user params
-  user_params <- reactive({
+  ADDIS_spending_params <- reactive({
     params <- reactiveValuesToList(input)
     data.frame(
       param = names(params),
       value = unlist(params, use.names = FALSE)
     ) %>%
-      filter(param != "go",
-             param != "download2_bttn")
+      filter(param != "go")
   })
 
   # remove placeholder text
@@ -201,21 +135,197 @@ ADDIS_spending_Server <- function(input, output, session, data) {
     }
   })
   
-  #download params
-  output$download2 <- downloadHandler(
-      filename = function() {
-        paste("ADDIS_spending_params-", Sys.Date(), ".csv", sep = "")
-      },
-      content = function(file) {
-        write_csv(user_params(), file)
-      }
-    )
+  list(ADDIS_spending_res = ADDIS_spending_res,
+       ADDIS_spending_params = ADDIS_spending_params)
+}
+Alpha_spending_Server <- function(input, output, session, data) {
+  ns <- session$ns
   
-  return(list(ADDIS_spending_res = ADDIS_spending_res))
+  # Run Alpha spending algorithm
+  Alpha_spending_res <- reactive({
+    
+    #check parameters
+    alpha = as.numeric(input$alpha)
+    random = ifelse(input$random == "True", T, F)
+    seed = as.numeric(input$seed)
+    
+    set.seed(seed)
+    
+    #provide user feedback
+    observeEvent(input$alpha, {
+      req(input$alpha)
+      if(as.numeric(input$alpha) > 1 | as.numeric(input$alpha) <= 0 |
+         str_detect(input$alpha, "[a-zA-Z\\,\\-]+")) {
+        showFeedbackDanger(
+          inputId = "alpha",
+          text = "Value not between 0 and 1",
+          icon = NULL
+        )
+      } else {
+        hideFeedback("alpha")
+      }
+    }, ignoreNULL = FALSE
+    )
+    
+    if(!is.null(data())){
+      # shiny::showModal(modalDialog("Running algorithm..."))
+    }
+    
+    out <- Alpha_spending(d = data(),
+                          alpha = alpha,
+                          random = random)
+    shiny::removeModal()
+    
+    out
+  }) %>% #close eventReactive
+    bindCache(input$alpha,
+              input$random) %>%
+    bindEvent(input$go)
+  #toggle advanced options
+  observe({
+    toggle(id = "advopt", condition = input$checkbox)
+  })
+  
+  #record user params
+  Alpha_spending_params <- reactive({
+    params <- reactiveValuesToList(input)
+    data.frame(
+      param = names(params),
+      value = unlist(params, use.names = FALSE)
+    ) %>%
+      filter(param != "go")
+  })
+  
+  # remove placeholder text
+  observeEvent(input$go, {
+    
+    if(input$go == 0){
+      shinyjs::show(id = "placeholder")
+      shinyjs::show(id = "placeholder2")
+    } else if(input$go > 0 && !is.null(data())) {
+      shinyjs::hide(id = "placeholder")
+      shinyjs::hide(id = "placeholder2")
+    } 
+    else {
+      shinyjs::show(id = "placeholder")
+      shinyjs::show(id = "placeholder2")
+    }
+    
+  })
+  
+  # Output error messages
+  observeEvent(input$go, {
+    
+    if(!is.null(data())){
+      tryCatch({
+        Alpha_spending_res()
+      },
+      error = function(err){
+        shiny::showNotification(paste0(err), type = "err")
+      })
+    }
+  })
+  
+  list(Alpha_spending_res = Alpha_spending_res,
+       Alpha_spending_params = Alpha_spending_params)
+}
+online_fallback_Server <- function(input, output, session, data) {
+  ns <- session$ns
+  
+  # Run online fallback algorithm
+  online_fallback_res <- reactive({
+    
+    #check parameters
+    alpha = as.numeric(input$alpha)
+    random = ifelse(input$random == "True", T, F)
+    seed = as.numeric(input$seed)
+    
+    set.seed(seed)
+    
+    #provide user feedback
+    observeEvent(input$alpha, {
+      req(input$alpha)
+      if(as.numeric(input$alpha) > 1 | as.numeric(input$alpha) <= 0 |
+         str_detect(input$alpha, "[a-zA-Z\\,\\-]+")) {
+        showFeedbackDanger(
+          inputId = "alpha",
+          text = "Value not between 0 and 1",
+          icon = NULL
+        )
+      } else {
+        hideFeedback("alpha")
+      }
+    }, ignoreNULL = FALSE
+    )
+    
+    if(!is.null(data())){
+      # shiny::showModal(modalDialog("Running algorithm..."))
+    }
+    
+    out <- online_fallback(d = data(),
+                           alpha = alpha,
+                           random = random)
+    shiny::removeModal()
+    
+    out
+  }) %>% #close eventReactive
+    bindCache(input$alpha,
+              input$random) %>%
+    bindEvent(input$go)
+  
+  #toggle advanced options
+  observe({
+    toggle(id = "advopt", condition = input$checkbox)
+  })
+  
+  #record user params
+  online_fallback_params <- reactive({
+    params <- reactiveValuesToList(input)
+    data.frame(
+      param = names(params),
+      value = unlist(params, use.names = FALSE)
+    ) %>%
+      filter(param != "go")
+  })
+  
+  # remove placeholder text
+  observeEvent(input$go, {
+    
+    if(input$go == 0){
+      shinyjs::show(id = "placeholder")
+      shinyjs::show(id = "placeholder2")
+    } else if(input$go > 0 && !is.null(data())) {
+      shinyjs::hide(id = "placeholder")
+      shinyjs::hide(id = "placeholder2")
+    } 
+    else {
+      shinyjs::show(id = "placeholder")
+      shinyjs::show(id = "placeholder2")
+    }
+    
+  })
+  
+  # Output error messages
+  observeEvent(input$go, {
+    
+    if(!is.null(data())){
+      tryCatch({
+        online_fallback_res()
+      },
+      error = function(err){
+        shiny::showNotification(paste0(err), type = "err")
+      })
+    }
+  })
+  
+  list(online_fallback_res = online_fallback_res,
+       online_fallback_params = online_fallback_params)
 }
 
+#### COUNT SERVERS ####
 ADDIS_spending_countServer <- function(input, output, session, ADDIS_spending_result) {
   ns <- session$ns
+  
   #toggle download button
   observe({
     toggle(id = "downloadbutton")
@@ -231,14 +341,14 @@ ADDIS_spending_countServer <- function(input, output, session, ADDIS_spending_re
         set_html_breaks(2),
         shinyWidgets::downloadBttn(
           outputId = ns("download"),
-          label = "Download results",
+          label = "Download results & inputs",
           style = "fill",
           color = "primary",
           size = "sm"
         ),
         style = "text-align: center;
     vertical-align: middle;
-    font-family: Poppins, sans-serif;
+    font-family: Lato, sans-serif;
     font-size: 18px"
       )
     } else {
@@ -248,18 +358,15 @@ ADDIS_spending_countServer <- function(input, output, session, ADDIS_spending_re
         set_html_breaks(2),
         shinyWidgets::downloadBttn(
           outputId = ns("download"),
-          label = "Download results",
+          label = "Download results & inputs",
           style = "fill",
           color = "primary",
           size = "sm"
         ),
         style = "text-align: center;
         vertical-align: middle;
-        font-family: Poppins, sans-serif;
+        font-family: Lato, sans-serif;
         font-size: 18px;
-        .shiny-download-link{
-        width: 250px;
-        }
         "
       )
     }
@@ -276,14 +383,153 @@ ADDIS_spending_countServer <- function(input, output, session, ADDIS_spending_re
       
       filename <- paste("ADDIS_spending-", Sys.Date(), ".csv", sep = "")
       write_csv(ADDIS_spending_result$ADDIS_spending_res(), filename)
+      filename2 <- paste("ADDIS_spending-", Sys.Date(), ".csv", sep = "")
+      write_csv(ADDIS_spending_result$ADDIS_spending_params(), filename2)
       R_session <- paste("ADDIS_spending-", Sys.Date(), "sessioninfo.txt", sep = "")
       writeLines(capture.output(sessionInfo()), R_session)
-      files <- c(filename, R_session)
+      files <- c(filename, filename2, R_session)
+      zip(file, files)
+    }
+  )
+}
+Alpha_spending_countServer <- function(input, output, session, Alpha_spending_result) {
+  ns <- session$ns
+  #toggle download button
+  observe({
+    toggle(id = "downloadbutton")
+  })
+  
+  output$count <- renderUI({
+    
+    data <- Alpha_spending_result$Alpha_spending_res()
+    if(sum(data$R) == 1) {
+      div(
+        set_html_breaks(10),
+        paste0("1 null hypothesis was rejected. See full results by downloading below"),
+        set_html_breaks(2),
+        shinyWidgets::downloadBttn(
+          outputId = ns("download"),
+          label = "Download results & inputs",
+          style = "fill",
+          color = "primary",
+          size = "sm"
+        ),
+        style = "text-align: center;
+    vertical-align: middle;
+    font-family: Lato, sans-serif;
+    font-size: 18px"
+      )
+    } else {
+      div(
+        set_html_breaks(10),
+        paste0(sum(data$R), " null hypotheses were rejected. See full results by downloading below"),
+        set_html_breaks(2),
+        shinyWidgets::downloadBttn(
+          outputId = ns("download"),
+          label = "Download results & inputs",
+          style = "fill",
+          color = "primary",
+          size = "sm"
+        ),
+        style = "text-align: center;
+        vertical-align: middle;
+        font-family: Lato, sans-serif;
+        font-size: 18px;
+        "
+      )
+    }
+  })
+  
+  output$download <- downloadHandler(
+    filename = function() {
+      paste("Alpha_spending-", Sys.Date(), ".zip", sep = "")
+    },
+    content = function(file) {
+      owd <- setwd(tempdir())
+      on.exit(setwd(owd))
+      files <- NULL;
+      
+      filename <- paste("Alpha_spending-", Sys.Date(), ".csv", sep = "")
+      write_csv(Alpha_spending_result$Alpha_spending_res(), filename)
+      filename2 <- paste("Alpha_spending-", Sys.Date(), ".csv", sep = "")
+      write_csv(Alpha_spending_result$Alpha_spending_params(), filename2)
+      R_session <- paste("Alpha_spending-", Sys.Date(), "sessioninfo.txt", sep = "")
+      writeLines(capture.output(sessionInfo()), R_session)
+      files <- c(filename, filename2, R_session)
+      zip(file, files)
+    }
+  )
+}
+online_fallback_countServer <- function(input, output, session, online_fallback_result) {
+  ns <- session$ns
+  #toggle download button
+  observe({
+    toggle(id = "downloadbutton")
+  })
+  
+  output$count <- renderUI({
+    
+    data <- online_fallback_result$online_fallback_res()
+    if(sum(data$R) == 1) {
+      div(
+        set_html_breaks(10),
+        paste0("1 null hypothesis was rejected. See full results by downloading below"),
+        set_html_breaks(2),
+        shinyWidgets::downloadBttn(
+          outputId = ns("download"),
+          label = "Download results & inputs",
+          style = "fill",
+          color = "primary",
+          size = "sm"
+        ),
+        style = "text-align: center;
+    vertical-align: middle;
+    font-family: Lato, sans-serif;
+    font-size: 18px"
+      )
+    } else {
+      div(
+        set_html_breaks(10),
+        paste0(sum(data$R), " null hypotheses were rejected. See full results by downloading below"),
+        set_html_breaks(2),
+        shinyWidgets::downloadBttn(
+          outputId = ns("download"),
+          label = "Download results & inputs",
+          style = "fill",
+          color = "primary",
+          size = "sm"
+        ),
+        style = "text-align: center;
+        vertical-align: middle;
+        font-family: Lato, sans-serif;
+        font-size: 18px;
+        "
+      )
+    }
+  })
+  
+  output$download <- downloadHandler(
+    filename = function() {
+      paste("online_fallback-", Sys.Date(), ".zip", sep = "")
+    },
+    content = function(file) {
+      owd <- setwd(tempdir())
+      on.exit(setwd(owd))
+      files <- NULL;
+      
+      filename <- paste("online_fallback-", Sys.Date(), ".csv", sep = "")
+      write_csv(online_fallback_result$online_fallback_res(), filename)
+      filename2 <- paste("online_fallback-", Sys.Date(), ".csv", sep = "")
+      write_csv(online_fallback_result$online_fallback_params(), filename2)
+      R_session <- paste("online_fallback-", Sys.Date(), "sessioninfo.txt", sep = "")
+      writeLines(capture.output(sessionInfo()), R_session)
+      files <- c(filename, filename2, R_session)
       zip(file, files)
     }
   )
 }
 
+#### PLOT SERVERS ####
 ADDIS_spending_plotServer <- function(input, output, session, ADDIS_spending_result) {
   output$plot <- renderPlotly({
     #modify data
@@ -304,17 +550,161 @@ ADDIS_spending_plotServer <- function(input, output, session, ADDIS_spending_res
     plot_ly(new_data, x = ~index, y = ~alpha, color = ~adjustment) %>%
       add_lines() %>%
       layout(xaxis = ex, yaxis = why)
+  }) %>%
+    bindCache(ADDIS_spending_result$ADDIS_spending_res() %>% slice_tail())
+  
+  output$num <- renderUI({
+    current_alg_data <- ADDIS_spending_result$ADDIS_spending_res()
+    
+    div(
+      p(
+        renderTextillate({
+          textillate(paste0("ADDIS Spending rejected ", sum(current_alg_data$R), " null hypotheses."), auto.start = TRUE) %>%
+            textillateIn(effect = "fadeInDown",
+                         sync = T)
+        })
+      ),
+      p(
+        renderTextillate({
+          textillate(paste0("Bonferroni rejected ", sum(current_alg_data$pval <= 0.05/length(current_alg_data$pval)), " null hypotheses."), auto.start = TRUE) %>%
+            textillateIn(effect = "fadeInDown",
+                         sync = T)
+        })
+      ),
+      p(
+        renderTextillate({
+          textillate(paste0("No adjustment rejected ", sum(current_alg_data$pval <= 0.05), " null hypotheses."), auto.start = TRUE) %>%
+            textillateIn(effect = "fadeInDown",
+                         sync = T)
+        })
+      ),
+      style = "text-align: center;
+    vertical-align: middle;
+    font-family: Lato, sans-serif;
+    font-size: 18px"
+    ) #close div
+  })
+}
+Alpha_spending_plotServer <- function(input, output, session, Alpha_spending_result) {
+  output$plot <- renderPlotly({
+    #modify data
+    new_data <- Alpha_spending_result$Alpha_spending_res() %>%
+      mutate(index = row_number(),
+             Alpha_spending = log(alphai),
+             Bonferroni = log(0.05/index),
+             Unadjusted = rep(log(0.05), nrow(.))) %>%
+      pivot_longer(cols = c(Alpha_spending, Bonferroni, Unadjusted),
+                   names_to = "adjustment",
+                   values_to = "alpha")
+    
+    font <- list(
+      family = "Lato"
+    )
+    ex <- list(title = "Index", titlefont = font)
+    why <- list(title = "Log adjusted test level", titlefont = font)
+    plot_ly(new_data, x = ~index, y = ~alpha, color = ~adjustment) %>%
+      add_lines() %>%
+      layout(xaxis = ex, yaxis = why)
+  }) %>%
+    bindCache(Alpha_spending_result$Alpha_spending_res() %>% slice_tail())
+  
+  output$num <- renderUI({
+    current_alg_data <- Alpha_spending_result$Alpha_spending_res()
+    
+    div(
+      p(
+        renderTextillate({
+          textillate(paste0("Alpha Spending rejected ", sum(current_alg_data$R), " null hypotheses."), auto.start = TRUE) %>%
+            textillateIn(effect = "fadeInDown",
+                         sync = T)
+        })
+      ),
+      p(
+        renderTextillate({
+          textillate(paste0("Bonferroni rejected ", sum(current_alg_data$pval <= 0.05/length(current_alg_data$pval)), " null hypotheses."), auto.start = TRUE) %>%
+            textillateIn(effect = "fadeInDown",
+                         sync = T)
+        })
+      ),
+      p(
+        renderTextillate({
+          textillate(paste0("No adjustment rejected ", sum(current_alg_data$pval <= 0.05), " null hypotheses."), auto.start = TRUE) %>%
+            textillateIn(effect = "fadeInDown",
+                         sync = T)
+        })
+      ),
+      style = "text-align: center;
+    vertical-align: middle;
+    font-family: Lato, sans-serif;
+    font-size: 18px"
+    ) #close div
+  })
+}
+online_fallback_plotServer <- function(input, output, session, online_fallback_result) {
+  output$plot <- renderPlotly({
+    #modify data
+    new_data <- online_fallback_result$online_fallback_res() %>%
+      mutate(index = row_number(),
+             online_fallback = log(alphai),
+             Bonferroni = log(0.05/index),
+             Unadjusted = rep(log(0.05), nrow(.))) %>%
+      pivot_longer(cols = c(online_fallback, Bonferroni, Unadjusted),
+                   names_to = "adjustment",
+                   values_to = "alpha")
+    
+    font <- list(
+      family = "Lato"
+    )
+    ex <- list(title = "Index", titlefont = font)
+    why <- list(title = "Log adjusted test level", titlefont = font)
+    plot_ly(new_data, x = ~index, y = ~alpha, color = ~adjustment) %>%
+      add_lines() %>%
+      layout(xaxis = ex, yaxis = why)
+  }) %>%
+    bindCache(online_fallback_result$online_fallback_res() %>% slice_tail())
+  
+  output$num <- renderUI({
+    current_alg_data <- online_fallback_result$online_fallback_res()
+    
+    div(
+      p(
+        renderTextillate({
+          textillate(paste0("Online Fallback rejected ", sum(current_alg_data$R), " null hypotheses."), auto.start = TRUE) %>%
+            textillateIn(effect = "fadeInDown",
+                         sync = T)
+        })
+      ),
+      p(
+        renderTextillate({
+          textillate(paste0("Bonferroni rejected ", sum(current_alg_data$pval <= 0.05/length(current_alg_data$pval)), " null hypotheses."), auto.start = TRUE) %>%
+            textillateIn(effect = "fadeInDown",
+                         sync = T)
+        })
+      ),
+      p(
+        renderTextillate({
+          textillate(paste0("No adjustment rejected ", sum(current_alg_data$pval <= 0.05), " null hypotheses."), auto.start = TRUE) %>%
+            textillateIn(effect = "fadeInDown",
+                         sync = T)
+        })
+      ),
+      style = "text-align: center;
+    vertical-align: middle;
+    font-family: Lato, sans-serif;
+    font-size: 18px"
+    ) #close div
   })
 }
 
+#### COMP SERVERS ####
 ADDIS_spending_compServer <- function(input, output, session, ADDIS_spending_result, data) {
   select_alg <- function(alg, data) {
     switch(alg,
            ADDIS_spending = ADDIS_spending(data),
            Alpha_spending = Alpha_spending(data),
-           online_fallback = online_fallback(data))
+           Online_fallback = online_fallback(data))
   }
-
+  
   data_to_plot <- eventReactive(input$compare, {
     current_alg_data <- ADDIS_spending_result$ADDIS_spending_res()
     
@@ -348,8 +738,9 @@ ADDIS_spending_compServer <- function(input, output, session, ADDIS_spending_res
         add_lines() %>%
         layout(xaxis = ex, yaxis = why)
     }
-  })
-
+  }) %>%
+    bindCache(data_to_plot() %>% slice_tail())
+  
   #to make compnum reactive
   select_alg_data <- eventReactive(input$compare, {
     out <- select_alg(alg = input$alg, data = data())
@@ -366,226 +757,47 @@ ADDIS_spending_compServer <- function(input, output, session, ADDIS_spending_res
       
       div(
         p(
-          paste0("ADDIS_spending rejected ", sum(current_alg_data$R), " null hypotheses.")
+          renderTextillate({
+            textillate(paste0("ADDIS Spending rejected ", sum(current_alg_data$R), " null hypotheses."), auto.start = TRUE) %>%
+              textillateIn(effect = "fadeInDown",
+                           sync = T)
+          })
         ),
         p(
-          paste0(selected_alg_to_display(), " rejected ", sum(select_alg_data$R), " null hypotheses.")
+          renderTextillate({
+            textillate(paste0(selected_alg_to_display(), " rejected ", sum(select_alg_data$R), " null hypotheses."), auto.start = TRUE) %>%
+              textillateIn(effect = "fadeInDown",
+                           sync = T)
+          })
         ),
         p(
-          paste0("Bonferroni rejected ", sum(current_alg_data$pval <= 0.05/length(current_alg_data$pval)), " null hypotheses.")
+          renderTextillate({
+            textillate(paste0("Bonferroni rejected ", sum(current_alg_data$pval <= 0.05/length(current_alg_data$pval)), " null hypotheses."), auto.start = TRUE) %>%
+              textillateIn(effect = "fadeInDown",
+                           sync = T)
+          })
         ),
         p(
-          paste0("No adjustment rejected ", sum(current_alg_data$pval <= 0.05), " null hypotheses.")
+          renderTextillate({
+            textillate(paste0("No adjustment rejected ", sum(current_alg_data$pval <= 0.05), " null hypotheses."), auto.start = TRUE) %>%
+              textillateIn(effect = "fadeInDown",
+                           sync = T)
+          })
         ),
         style = "text-align: center;
     vertical-align: middle;
-    font-family: Poppins, sans-serif;
+    font-family: Lato, sans-serif;
     font-size: 18px"
       ) #close div
     }
-    })
-}
-
-Alpha_spending_Server <- function(input, output, session, data) {
-  ns <- session$ns
-  
-  # Run Alpha spending algorithm
-  Alpha_spending_res <- eventReactive(input$go, {
-    
-    #check parameters
-    alpha = as.numeric(input$alpha)
-    req(input$alpha)
-    random = ifelse(input$random == "True", T, F)
-    seed = as.numeric(input$seed)
-    
-    set.seed(seed)
-    
-    #provide user feedback
-    observeEvent(input$alpha, {
-      req(input$alpha)
-      if(as.numeric(input$alpha) > 1 | as.numeric(input$alpha) <= 0 |
-         str_detect(input$alpha, "[a-zA-Z\\,\\-]+")) {
-        showFeedbackDanger(
-          inputId = "alpha",
-          text = "Value not between 0 and 1",
-          icon = NULL
-        )
-      } else {
-        hideFeedback("alpha")
-      }
-    }, ignoreNULL = FALSE
-    )
-    
-    if(!is.null(data())){
-      shiny::showModal(modalDialog("Running algorithm..."))
-    }
-    
-    out <- Alpha_spending(d = data(),
-                          alpha = alpha,
-                          random = random)
-    shiny::removeModal()
-    
-    return(out)
-  }) #close eventReactive
-  
-  #toggle advanced options
-  observe({
-    toggle(id = "advopt", condition = input$checkbox)
-  })
-  
-  #record user params
-  user_params <- reactive({
-    params <- reactiveValuesToList(input)
-    data.frame(
-      param = names(params),
-      value = unlist(params, use.names = FALSE)
-    ) %>%
-      filter(param != "go",
-             param != "download2_bttn")
-  })
-  
-  # remove placeholder text
-  observeEvent(input$go, {
-    
-    if(input$go == 0){
-      shinyjs::show(id = "placeholder")
-      shinyjs::show(id = "placeholder2")
-    } else if(input$go > 0 && !is.null(data())) {
-      shinyjs::hide(id = "placeholder")
-      shinyjs::hide(id = "placeholder2")
-    } 
-    else {
-      shinyjs::show(id = "placeholder")
-      shinyjs::show(id = "placeholder2")
-    }
-    
-  })
-  
-  # Output error messages
-  observeEvent(input$go, {
-    
-    if(!is.null(data())){
-      tryCatch({
-        Alpha_spending_res()
-      },
-      error = function(err){
-        shiny::showNotification(paste0(err), type = "err")
-      })
-    }
-  })
-  
-  #download params
-  output$download2 <- downloadHandler(
-    filename = function() {
-      paste("Alpha_spending_params-", Sys.Date(), ".csv", sep = "")
-    },
-    content = function(file) {
-      write_csv(user_params(), file)
-    }
-  )
-  
-  return(list(Alpha_spending_res = Alpha_spending_res))
-}
-
-Alpha_spending_countServer <- function(input, output, session, Alpha_spending_result) {
-  ns <- session$ns
-  #toggle download button
-  observe({
-    toggle(id = "downloadbutton")
-  })
-  
-  output$count <- renderUI({
-    
-    data <- Alpha_spending_result$Alpha_spending_res()
-    if(sum(data$R) == 1) {
-      div(
-        set_html_breaks(10),
-        paste0("1 null hypothesis was rejected. See full results by downloading below"),
-        set_html_breaks(2),
-        shinyWidgets::downloadBttn(
-          outputId = ns("download"),
-          label = "Download results",
-          style = "fill",
-          color = "primary",
-          size = "sm"
-        ),
-        style = "text-align: center;
-    vertical-align: middle;
-    font-family: Poppins, sans-serif;
-    font-size: 18px"
-      )
-    } else {
-      div(
-        set_html_breaks(10),
-        paste0(sum(data$R), " null hypotheses were rejected. See full results by downloading below"),
-        set_html_breaks(2),
-        shinyWidgets::downloadBttn(
-          outputId = ns("download"),
-          label = "Download results",
-          style = "fill",
-          color = "primary",
-          size = "sm"
-        ),
-        style = "text-align: center;
-        vertical-align: middle;
-        font-family: Poppins, sans-serif;
-        font-size: 18px;
-        .shiny-download-link{
-        width: 250px;
-        }
-        "
-      )
-    }
-  })
-  
-  output$download <- downloadHandler(
-    filename = function() {
-      paste("Alpha_spending-", Sys.Date(), ".zip", sep = "")
-    },
-    content = function(file) {
-      owd <- setwd(tempdir())
-      on.exit(setwd(owd))
-      files <- NULL;
-      
-      filename <- paste("Alpha_spending-", Sys.Date(), ".csv", sep = "")
-      write_csv(Alpha_spending_result$Alpha_spending_res(), filename)
-      R_session <- paste("Alpha_spending-", Sys.Date(), "sessioninfo.txt", sep = "")
-      writeLines(capture.output(sessionInfo()), R_session)
-      files <- c(filename, R_session)
-      zip(file, files)
-    }
-  )
-}
-
-Alpha_spending_plotServer <- function(input, output, session, Alpha_spending_result) {
-  output$plot <- renderPlotly({
-    #modify data
-    new_data <- Alpha_spending_result$Alpha_spending_res() %>%
-      mutate(index = row_number(),
-             Alpha_spending = log(alphai),
-             Bonferroni = log(0.05/index),
-             Unadjusted = rep(log(0.05), nrow(.))) %>%
-      pivot_longer(cols = c(Alpha_spending, Bonferroni, Unadjusted),
-                   names_to = "adjustment",
-                   values_to = "alpha")
-    
-    font <- list(
-      family = "Lato"
-    )
-    ex <- list(title = "Index", titlefont = font)
-    why <- list(title = "Log adjusted test level", titlefont = font)
-    plot_ly(new_data, x = ~index, y = ~alpha, color = ~adjustment) %>%
-      add_lines() %>%
-      layout(xaxis = ex, yaxis = why)
   })
 }
-
 Alpha_spending_compServer <- function(input, output, session, Alpha_spending_result, data) {
   select_alg <- function(alg, data) {
     switch(alg,
            ADDIS_spending = ADDIS_spending(data),
            Alpha_spending = Alpha_spending(data),
-           online_fallback = online_fallback(data))
+           Online_fallback = online_fallback(data))
   }
   
   data_to_plot <- eventReactive(input$compare, {
@@ -621,7 +833,8 @@ Alpha_spending_compServer <- function(input, output, session, Alpha_spending_res
         add_lines() %>%
         layout(xaxis = ex, yaxis = why)
     }
-  })
+  }) %>%
+    bindCache(data_to_plot() %>% slice_tail())
   
   #to make compnum reactive
   select_alg_data <- eventReactive(input$compare, {
@@ -639,226 +852,47 @@ Alpha_spending_compServer <- function(input, output, session, Alpha_spending_res
       
       div(
         p(
-          paste0("Alpha_spending rejected ", sum(current_alg_data$R), " null hypotheses.")
+          renderTextillate({
+            textillate(paste0("Alpha Spending rejected ", sum(current_alg_data$R), " null hypotheses."), auto.start = TRUE) %>%
+              textillateIn(effect = "fadeInDown",
+                           sync = T)
+          })
         ),
         p(
-          paste0(selected_alg_to_display(), " rejected ", sum(select_alg_data$R), " null hypotheses.")
+          renderTextillate({
+            textillate(paste0(selected_alg_to_display(), " rejected ", sum(select_alg_data$R), " null hypotheses."), auto.start = TRUE) %>%
+              textillateIn(effect = "fadeInDown",
+                           sync = T)
+          })
         ),
         p(
-          paste0("Bonferroni rejected ", sum(current_alg_data$pval <= 0.05/length(current_alg_data$pval)), " null hypotheses.")
+          renderTextillate({
+            textillate(paste0("Bonferroni rejected ", sum(current_alg_data$pval <= 0.05/length(current_alg_data$pval)), " null hypotheses."), auto.start = TRUE) %>%
+              textillateIn(effect = "fadeInDown",
+                           sync = T)
+          })
         ),
         p(
-          paste0("No adjustment rejected ", sum(current_alg_data$pval <= 0.05), " null hypotheses.")
+          renderTextillate({
+            textillate(paste0("No adjustment rejected ", sum(current_alg_data$pval <= 0.05), " null hypotheses."), auto.start = TRUE) %>%
+              textillateIn(effect = "fadeInDown",
+                           sync = T)
+          })
         ),
         style = "text-align: center;
     vertical-align: middle;
-    font-family: Poppins, sans-serif;
+    font-family: Lato, sans-serif;
     font-size: 18px"
       ) #close div
     }
   })
 }
-
-online_fallback_Server <- function(input, output, session, data) {
-  ns <- session$ns
-  
-  # Run Alpha spending algorithm
-  online_fallback_res <- eventReactive(input$go, {
-    
-    #check parameters
-    alpha = as.numeric(input$alpha)
-    req(input$alpha)
-    random = ifelse(input$random == "True", T, F)
-    seed = as.numeric(input$seed)
-    
-    set.seed(seed)
-    
-    #provide user feedback
-    observeEvent(input$alpha, {
-      req(input$alpha)
-      if(as.numeric(input$alpha) > 1 | as.numeric(input$alpha) <= 0 |
-         str_detect(input$alpha, "[a-zA-Z\\,\\-]+")) {
-        showFeedbackDanger(
-          inputId = "alpha",
-          text = "Value not between 0 and 1",
-          icon = NULL
-        )
-      } else {
-        hideFeedback("alpha")
-      }
-    }, ignoreNULL = FALSE
-    )
-    
-    if(!is.null(data())){
-      shiny::showModal(modalDialog("Running algorithm..."))
-    }
-    
-    out <- online_fallback(d = data(),
-                          alpha = alpha,
-                          random = random)
-    shiny::removeModal()
-    
-    return(out)
-  }) #close eventReactive
-  
-  #toggle advanced options
-  observe({
-    toggle(id = "advopt", condition = input$checkbox)
-  })
-  
-  #record user params
-  user_params <- reactive({
-    params <- reactiveValuesToList(input)
-    data.frame(
-      param = names(params),
-      value = unlist(params, use.names = FALSE)
-    ) %>%
-      filter(param != "go",
-             param != "download2_bttn")
-  })
-  
-  # remove placeholder text
-  observeEvent(input$go, {
-    
-    if(input$go == 0){
-      shinyjs::show(id = "placeholder")
-      shinyjs::show(id = "placeholder2")
-    } else if(input$go > 0 && !is.null(data())) {
-      shinyjs::hide(id = "placeholder")
-      shinyjs::hide(id = "placeholder2")
-    } 
-    else {
-      shinyjs::show(id = "placeholder")
-      shinyjs::show(id = "placeholder2")
-    }
-    
-  })
-  
-  # Output error messages
-  observeEvent(input$go, {
-    
-    if(!is.null(data())){
-      tryCatch({
-        online_fallback_res()
-      },
-      error = function(err){
-        shiny::showNotification(paste0(err), type = "err")
-      })
-    }
-  })
-  
-  #download params
-  output$download2 <- downloadHandler(
-    filename = function() {
-      paste("online_fallback_params-", Sys.Date(), ".csv", sep = "")
-    },
-    content = function(file) {
-      write_csv(user_params(), file)
-    }
-  )
-  
-  return(list(online_fallback_res = online_fallback_res))
-}
-
-online_fallback_countServer <- function(input, output, session, online_fallback_result) {
-  ns <- session$ns
-  #toggle download button
-  observe({
-    toggle(id = "downloadbutton")
-  })
-  
-  output$count <- renderUI({
-    
-    data <- online_fallback_result$online_fallback_res()
-    if(sum(data$R) == 1) {
-      div(
-        set_html_breaks(10),
-        paste0("1 null hypothesis was rejected. See full results by downloading below"),
-        set_html_breaks(2),
-        shinyWidgets::downloadBttn(
-          outputId = ns("download"),
-          label = "Download results",
-          style = "fill",
-          color = "primary",
-          size = "sm"
-        ),
-        style = "text-align: center;
-    vertical-align: middle;
-    font-family: Poppins, sans-serif;
-    font-size: 18px"
-      )
-    } else {
-      div(
-        set_html_breaks(10),
-        paste0(sum(data$R), " null hypotheses were rejected. See full results by downloading below"),
-        set_html_breaks(2),
-        shinyWidgets::downloadBttn(
-          outputId = ns("download"),
-          label = "Download results",
-          style = "fill",
-          color = "primary",
-          size = "sm"
-        ),
-        style = "text-align: center;
-        vertical-align: middle;
-        font-family: Poppins, sans-serif;
-        font-size: 18px;
-        .shiny-download-link{
-        width: 250px;
-        }
-        "
-      )
-    }
-  })
-  
-  output$download <- downloadHandler(
-    filename = function() {
-      paste("online_fallback-", Sys.Date(), ".zip", sep = "")
-    },
-    content = function(file) {
-      owd <- setwd(tempdir())
-      on.exit(setwd(owd))
-      files <- NULL;
-      
-      filename <- paste("online_fallback-", Sys.Date(), ".csv", sep = "")
-      write_csv(online_fallback_result$online_fallback_res(), filename)
-      R_session <- paste("online_fallback-", Sys.Date(), "sessioninfo.txt", sep = "")
-      writeLines(capture.output(sessionInfo()), R_session)
-      files <- c(filename, R_session)
-      zip(file, files)
-    }
-  )
-}
-
-online_fallback_plotServer <- function(input, output, session, online_fallback_result) {
-  output$plot <- renderPlotly({
-    #modify data
-    new_data <- online_fallback_result$online_fallback_res() %>%
-      mutate(index = row_number(),
-             online_fallback = log(alphai),
-             Bonferroni = log(0.05/index),
-             Unadjusted = rep(log(0.05), nrow(.))) %>%
-      pivot_longer(cols = c(online_fallback, Bonferroni, Unadjusted),
-                   names_to = "adjustment",
-                   values_to = "alpha")
-    
-    font <- list(
-      family = "Lato"
-    )
-    ex <- list(title = "Index", titlefont = font)
-    why <- list(title = "Log adjusted test level", titlefont = font)
-    plot_ly(new_data, x = ~index, y = ~alpha, color = ~adjustment) %>%
-      add_lines() %>%
-      layout(xaxis = ex, yaxis = why)
-  })
-}
-
 online_fallback_compServer <- function(input, output, session, online_fallback_result, data) {
   select_alg <- function(alg, data) {
     switch(alg,
            ADDIS_spending = ADDIS_spending(data),
            Alpha_spending = Alpha_spending(data),
-           online_fallback = online_fallback(data))
+           Online_fallback = online_fallback(data))
   }
   
   data_to_plot <- eventReactive(input$compare, {
@@ -872,11 +906,11 @@ online_fallback_compServer <- function(input, output, session, online_fallback_r
     
     data_to_plot <- cbind(current_alg_data, select_alg_data$alphai) %>%
       mutate(index = row_number(),
-             online_fallback = log(alphai),
+             Online_fallback = log(alphai),
              !!rlang::quo_name(input$alg) := log(select_alg_data$alphai),
              Bonferroni = log(0.05/index),
              Unadjusted = rep(log(0.05), nrow(.))) %>%
-      pivot_longer(cols = c(online_fallback, !!rlang::quo_name(input$alg), Bonferroni, Unadjusted),
+      pivot_longer(cols = c(Online_fallback, !!rlang::quo_name(input$alg), Bonferroni, Unadjusted),
                    names_to = "adjustment",
                    values_to = "alpha")
   })
@@ -894,7 +928,8 @@ online_fallback_compServer <- function(input, output, session, online_fallback_r
         add_lines() %>%
         layout(xaxis = ex, yaxis = why)
     }
-  })
+  }) %>%
+    bindCache(data_to_plot() %>% slice_tail())
   
   #to make compnum reactive
   select_alg_data <- eventReactive(input$compare, {
@@ -912,20 +947,36 @@ online_fallback_compServer <- function(input, output, session, online_fallback_r
       
       div(
         p(
-          paste0("online_fallback rejected ", sum(current_alg_data$R), " null hypotheses.")
+          renderTextillate({
+            textillate(paste0("Online Fallback rejected ", sum(current_alg_data$R), " null hypotheses."), auto.start = TRUE) %>%
+              textillateIn(effect = "fadeInDown",
+                           sync = T)
+          })
         ),
         p(
-          paste0(selected_alg_to_display(), " rejected ", sum(select_alg_data$R), " null hypotheses.")
+          renderTextillate({
+            textillate(paste0(selected_alg_to_display(), " rejected ", sum(select_alg_data$R), " null hypotheses."), auto.start = TRUE) %>%
+              textillateIn(effect = "fadeInDown",
+                           sync = T)
+          })
         ),
         p(
-          paste0("Bonferroni rejected ", sum(current_alg_data$pval <= 0.05/length(current_alg_data$pval)), " null hypotheses.")
+          renderTextillate({
+            textillate(paste0("Bonferroni rejected ", sum(current_alg_data$pval <= 0.05/length(current_alg_data$pval)), " null hypotheses."), auto.start = TRUE) %>%
+              textillateIn(effect = "fadeInDown",
+                           sync = T)
+          })
         ),
         p(
-          paste0("No adjustment rejected ", sum(current_alg_data$pval <= 0.05), " null hypotheses.")
+          renderTextillate({
+            textillate(paste0("No adjustment rejected ", sum(current_alg_data$pval <= 0.05), " null hypotheses."), auto.start = TRUE) %>%
+              textillateIn(effect = "fadeInDown",
+                           sync = T)
+          })
         ),
         style = "text-align: center;
     vertical-align: middle;
-    font-family: Poppins, sans-serif;
+    font-family: Lato, sans-serif;
     font-size: 18px"
       ) #close div
     }
