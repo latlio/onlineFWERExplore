@@ -5,38 +5,7 @@
 # Created: Wed Dec 16 12:03:20 2020 ------------------------------
 ################################################################################
 source("src/server-mods.R")
-# source("src/router.R")
-
-# 1. Shiny ----
-library(shiny)
-library(shinyWidgets) #custom widgets, allows for shinydashboard elements
-library(shinycssloaders) #custom loading icons
-library(shinyjs) #improved user exp
-library(shinyBS) #custom widgets
-library(bsplus)
-# library(shinyalert) 
-library(shinyFeedback) #for user feedback messages
-# library(tippy) #for hovers
-# library(highcharter) #for animated plots
-library(plotly)
-library(waiter) #for loading screen
-library(sever) #for waiting screen
-library(knitr)
-library(shinydashboard)
-library(shinydashboardPlus)
-library(shiny.router) #for links
-# library(shinyanimate)
-
-# 2. Data Manipulation
-library(tidyverse)
-library(dplyr)
-library(lubridate)
-# library(reactable)
-
-#make sure github dev version is installed
-# devtools::install_github("https://github.com/dsrobertson/onlineFDR")
-# library(StanHeaders)
-library(onlineFDR)
+source("src/cicerone_guide.R")
 
 #for hover functionality
 with_tooltip <- function(value, tooltip, ...) {
@@ -51,7 +20,9 @@ server <- function(input, output, session) {
   Sys.sleep(0.5)
   waiter_hide()
   
-  # router$server(input, output, session)
+  #initialize walkthrough
+  Sys.sleep(1.5)
+  guide$init()$start()
   
   #Load in data
   in_data <- reactive({
@@ -83,6 +54,23 @@ server <- function(input, output, session) {
       'tsv')) {
       shiny::showNotification("Your file format is not supported. Please upload a CSV file!", type = "err", 
                               duration = NULL)
+    }
+  })
+  
+  #Dynamically display alg jump button ONLY when file is uploaded
+  output$showjump <- renderUI({
+    if(is.null(in_data())) return()
+    shiny::selectInput("tabjump", "Take me to the following algorithm page", c("Select", "ADDIS Spending", "Alpha Spending", "Online Fallback"))
+  })
+  
+  #jump to user-clicked algorithm
+  observeEvent(input$tabjump, {
+    if(input$tabjump == "ADDIS Spending"){
+      updateTabsetPanel(session, "navmaster", selected = "ADDIS Spending")
+    } else if (input$tabjump == "Alpha Spending") {
+      updateTabsetPanel(session, "navmaster", selected = "Alpha Spending")
+    } else if (input$tabjump == "Online Fallback") {
+      updateTabsetPanel(session, "navmaster", selected = "Online Fallback")
     }
   })
 

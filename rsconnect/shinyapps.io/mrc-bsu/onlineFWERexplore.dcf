@@ -1,0 +1,13 @@
+name: onlineFWERexplore
+title: onlineFWERexplore
+username:
+account: mrc-bsu
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 3462777
+bundleId: 4083602
+url: https://mrc-bsu.shinyapps.io/onlineFWERexplore/
+when: 1610397655.49639
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: .Rprofile
