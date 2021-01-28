@@ -5,90 +5,6 @@
 # Created: Wed Dec 16 12:02:10 2020 ------------------------------
 ################################################################################
 
-#### BUILDING BLOCKS -- DOESNT WORK CURRENTLY ####
-alphaUI <- function(id, label = NULL) {
-  ns <- NS(id)
-  
-  uiOutput(ns("alpha"))
-}
-
-depUI <- function(id, label = NULL) {
-  ns <- NS(id)
-  
-  tagList(  
-    div(style="display: inline-block;vertical-align:top; width: 200px;",
-        tags$strong(id = ns("label_dep"),
-                    "Dependent:"),
-        shinyWidgets::switchInput(ns("dep"), 
-                                  NULL,
-                                  value = FALSE,
-                                  onLabel = "True",
-                                  offLabel = "False",
-                                  width = "80px"),
-        shinyBS::bsTooltip(ns("label_dep"),
-                           "Your p-values are dependent.",
-                           placement = "right",
-                           trigger = "hover"))
-  )
-}
-
-randomUI <- function(id, label = NULL) {
-  ns <- NS(id)
-  
-  tagList(  
-    div(style="display: inline-block;vertical-align:top; width: 200px;",
-        tags$strong(id = ns("label_random"),
-                    "Random:"),
-        shinyWidgets::switchInput(ns("random"), 
-                                  NULL, 
-                                  value = TRUE,
-                                  onLabel = "True",
-                                  offLabel = "False", 
-                                  width = "80px"),
-        shinyBS::bsTooltip(ns("label_random"),
-                           "The order of p-values in each batch of experiments (those that
-                            have the same date) is randomized.",
-                           placement = "right",
-                           trigger = "hover"))
-  )
-}
-
-originalUI <- function(id, label = NULL) {
-  ns <- NS(id)
-  
-  tagList(  
-    div(style="display: inline-block;vertical-align:top; width: 200px;",
-        strong("Original:"),
-        shinyWidgets::switchInput(ns("original"), 
-                                  NULL, 
-                                  value = TRUE,
-                                  onLabel = "True",
-                                  offLabel = "False",
-                                  width = "80px"))
-  )
-}
-
-calculateUI <- function(id, label = NULL) {
-  ns <- NS(id)
-  
-  tagList(  
-    div(style="display: inline-block;vertical-align:top; width: 100px;",
-        shiny::actionButton(ns("go"),
-                            "Calculate"))
-  )
-}
-
-downloadUI <- function(id, label = NULL) {
-  ns <- NS(id)
-  
-  tagList(
-    div(style="display: inline-block;vertical-align:top; width: 100px;",
-        shiny::actionButton(ns("init"), "Download", icon = icon("download")),
-        shiny::downloadButton(ns("download"), "Download", style = "visibility: hidden;")
-    )
-  )
-}
-
 #### ALGORITHM INPUT UI ####
 ADDIS_spending_UI <- function(id) {
   ns <- NS(id)
@@ -161,15 +77,6 @@ ADDIS_spending_UI <- function(id) {
       label = "Calculate", 
       style = "fill",
       color = "success"
-    ),
-    br(),
-    br(),
-    shinyWidgets::downloadBttn(
-      outputId = ns("download2"),
-      label = "Download inputs",
-      style = "fill",
-      color = "primary",
-      size = "sm"
     )
   )
 }
@@ -231,15 +138,6 @@ Alpha_spending_UI <- function(id) {
       label = "Calculate", 
       style = "fill",
       color = "success"
-    ),
-    br(),
-    br(),
-    shinyWidgets::downloadBttn(
-      outputId = ns("download2"),
-      label = "Download inputs",
-      style = "fill",
-      color = "primary",
-      size = "sm"
     )
   )
 }
@@ -301,15 +199,6 @@ online_fallback_UI <- function(id) {
       label = "Calculate", 
       style = "fill",
       color = "success"
-    ),
-    br(),
-    br(),
-    shinyWidgets::downloadBttn(
-      outputId = ns("download2"),
-      label = "Download inputs",
-      style = "fill",
-      color = "primary",
-      size = "sm"
     )
   )
 }
@@ -327,7 +216,6 @@ summaryUI <- function(id) {
   ns <- NS(id)
   tagList(
     useShinyjs(),
-    # shinyanimate::withAnim(),
     shinyjs::hidden(
       div(
         id = ns("downloadbutton"),
@@ -347,7 +235,7 @@ compareUI <- function(id) {
            align = "center",
            div(style = "display: inline-block;vertical-align:top;text-align:center",
                strong("Pick an algorithm for comparison"),
-               shiny::selectInput(ns("alg"), NULL, c("ADDIS_spending","Alpha_spending", "online_fallback")))),
+               shiny::selectInput(ns("alg"), NULL, c("ADDIS_spending","Alpha_spending", "Online_fallback")))),
     shinyWidgets::actionBttn(
       inputId = ns("compare"),
       label = "Compare",
@@ -366,9 +254,14 @@ compareUI <- function(id) {
 plotUI <- function(id) {
   ns <- NS(id)
   
-  plotlyOutput(ns("plot")) %>%
-    shinycssloaders::withSpinner(type = 6,
-                                 color = "#0066CC")
+  tagList(
+    plotlyOutput(ns("plot")) %>%
+      shinycssloaders::withSpinner(type = 6,
+                                   color = "#0066CC"),
+    br(),
+    uiOutput(ns("num"))
+  )
+
 }
 
 set_html_breaks <- function(n) {
@@ -383,7 +276,7 @@ placeholderUI <- function(id) {
       "Nothing calculated yet",
       style = "text-align: center;
     vertical-align: middle;
-    font-family: Poppins, sans-serif;
+    font-family: Lato, sans-serif;
     font-size: 18px")
   )
 }
@@ -396,7 +289,7 @@ placeholder2UI <- function(id) {
       "Nothing calculated yet",
       style = "text-align: center;
     vertical-align: middle;
-    font-family: Poppins, sans-serif;
+    font-family: Lato, sans-serif;
     font-size: 18px")
   )
 }
