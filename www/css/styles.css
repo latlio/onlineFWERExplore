@@ -1,3 +1,15 @@
 .sort-header[aria-sort]:hover {
-  background: rgba(0, 0, 0, 0.03);
+	background: rgba(0, 0, 0, 0.03);
+}
+
+.box.box-solid.box-primary>.box-header {
+	color:#ffffff;
+	background:#266EAB
+}
+
+.box.box-solid.box-primary{
+	border-bottom-color#ffffff;
+	border-left-color:#F7F7F7;
+	border-right-color:#F7F7F7;
+	border-top-color:#ffffff;
 }

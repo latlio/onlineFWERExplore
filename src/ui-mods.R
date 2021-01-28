@@ -230,7 +230,7 @@ compareUI <- function(id) {
 
   tagList(
     br(),
-    p("Make sure you already clicked Calculate. Clicking the 'Compare' button compares the results of two algorithms. Parameters for the selected algorithm are assumed to be same as those for the current algorithm, otherwise they are set to the default values (see Help)."),
+    p("Make sure you already clicked Calculate. Clicking the 'Compare' button compares the results of two algorithms. You should set alpha to 0.05 for a fair comparison."),
     column(width = 12,
            align = "center",
            div(style = "display: inline-block;vertical-align:top;text-align:center",
