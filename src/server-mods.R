@@ -21,9 +21,6 @@ ADDIS_spending_Server <- function(input, output, session, data) {
     lambda = as.numeric(input$lambda)
     tau = as.numeric(input$tau)
     dep = ifelse(input$dep == "True", T, F)
-    seed = as.numeric(input$seed)
-    
-    set.seed(seed)
     
     #provide user feedback
     observeEvent(input$alpha, {
@@ -72,7 +69,7 @@ ADDIS_spending_Server <- function(input, output, session, data) {
     )
     
     if(!is.null(data())){
-      # shiny::showModal(modalDialog("Running algorithm..."))
+      shiny::showModal(modalDialog("For datasets with more than 50,000 p-values, expect a runtime between 5 and 30 seconds..."))
     }
     
     out <- ADDIS_spending(d = data(),
@@ -89,6 +86,13 @@ ADDIS_spending_Server <- function(input, output, session, data) {
               input$tau,
               input$dep) %>%
     bindEvent(input$go)
+  
+  observeEvent(input$reset, {
+    updateTextInput(session, "alpha", value = 0.05)
+    updateTextInput(session, "lambda", value = 0.25)
+    updateTextInput(session, "tau", value = 0.5)
+    updateSwitchInput(session, "dep", value = FALSE)
+  })
   
   #toggle advanced options
   observe({
@@ -168,7 +172,7 @@ Alpha_spending_Server <- function(input, output, session, data) {
     )
     
     if(!is.null(data())){
-      # shiny::showModal(modalDialog("Running algorithm..."))
+      shiny::showModal(modalDialog("For datasets with more than 50,000 p-values, expect a runtime between 5 and 30 seconds..."))
     }
     
     out <- Alpha_spending(d = data(),
@@ -179,8 +183,15 @@ Alpha_spending_Server <- function(input, output, session, data) {
     out
   }) %>% #close eventReactive
     bindCache(input$alpha,
-              input$random) %>%
+              input$random,
+              input$seed) %>%
     bindEvent(input$go)
+  
+  observeEvent(input$reset, {
+    updateTextInput(session, "alpha", value = 0.05)
+    updateSwitchInput(session, "random", value = TRUE)
+  })
+  
   #toggle advanced options
   observe({
     toggle(id = "advopt", condition = input$checkbox)
@@ -259,7 +270,7 @@ online_fallback_Server <- function(input, output, session, data) {
     )
     
     if(!is.null(data())){
-      # shiny::showModal(modalDialog("Running algorithm..."))
+      shiny::showModal(modalDialog("For datasets with more than 50,000 p-values, expect a runtime between 5 and 30 seconds..."))
     }
     
     out <- online_fallback(d = data(),
@@ -270,8 +281,14 @@ online_fallback_Server <- function(input, output, session, data) {
     out
   }) %>% #close eventReactive
     bindCache(input$alpha,
-              input$random) %>%
+              input$random,
+              input$seed) %>%
     bindEvent(input$go)
+  
+  observeEvent(input$reset, {
+    updateTextInput(session, "alpha", value = 0.05)
+    updateSwitchInput(session, "random", value = TRUE)
+  })
   
   #toggle advanced options
   observe({

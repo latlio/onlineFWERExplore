@@ -21,13 +21,6 @@ ADDIS_spending_UI <- function(id) {
                        "Overall significance level of the FDR procedure",
                        placement = "right",
                        trigger = "hover"),
-    shiny::textInput(ns("seed"), 
-                     "Seed:",
-                     width = 80, value = 1),
-    shinyBS::bsTooltip(ns("seed"),
-                       "Remember your number as this will let you access the same results in the future.",
-                       placement = "right",
-                       trigger = "hover"),
     div(style="display: inline-block;vertical-align:top; width: 200px;",
         strong(HTML(paste("Click for advanced options"))),
         prettyCheckbox(ns("checkbox"),
@@ -75,6 +68,14 @@ ADDIS_spending_UI <- function(id) {
     shinyWidgets::actionBttn(
       inputId = ns("go"),
       label = "Calculate", 
+      style = "fill",
+      color = "success"
+    ),
+    br(),
+    br(),
+    shinyWidgets::actionBttn(
+      inputId = ns("reset"),
+      label = "Reset Inputs",
       style = "fill",
       color = "success"
     )
@@ -138,6 +139,14 @@ Alpha_spending_UI <- function(id) {
       label = "Calculate", 
       style = "fill",
       color = "success"
+    ),
+    br(),
+    br(),
+    shinyWidgets::actionBttn(
+      inputId = ns("reset"),
+      label = "Reset Inputs",
+      style = "fill",
+      color = "success"
     )
   )
 }
@@ -197,6 +206,14 @@ online_fallback_UI <- function(id) {
     shinyWidgets::actionBttn(
       inputId = ns("go"),
       label = "Calculate", 
+      style = "fill",
+      color = "success"
+    ),
+    br(),
+    br(),
+    shinyWidgets::actionBttn(
+      inputId = ns("reset"),
+      label = "Reset Inputs",
       style = "fill",
       color = "success"
     )
