@@ -756,7 +756,7 @@ ADDIS_spending_compServer <- function(input, output, session, ADDIS_spending_res
         layout(xaxis = ex, yaxis = why)
     }
   }) %>%
-    bindCache(data_to_plot() %>% slice_tail())
+    bindCache(data_to_plot() %>% slice(5))
   
   #to make compnum reactive
   select_alg_data <- eventReactive(input$compare, {
@@ -851,7 +851,7 @@ Alpha_spending_compServer <- function(input, output, session, Alpha_spending_res
         layout(xaxis = ex, yaxis = why)
     }
   }) %>%
-    bindCache(data_to_plot() %>% slice_tail())
+    bindCache(data_to_plot() %>% slice(5))
   
   #to make compnum reactive
   select_alg_data <- eventReactive(input$compare, {
@@ -946,7 +946,7 @@ online_fallback_compServer <- function(input, output, session, online_fallback_r
         layout(xaxis = ex, yaxis = why)
     }
   }) %>%
-    bindCache(data_to_plot() %>% slice_tail())
+    bindCache(data_to_plot() %>% slice(5))
   
   #to make compnum reactive
   select_alg_data <- eventReactive(input$compare, {
