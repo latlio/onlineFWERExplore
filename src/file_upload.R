@@ -33,7 +33,7 @@ fluidPage(
     h1("Upload your dataset", id = "upload"),
     p("Ensure that your CSV file contains at the minimum, a column of p-values with the name 'pval'. If you're including dates, ensure that they are in the format YYYY-MM-DD. "),
     column(
-      width = 8,
+      width = 6,
       fileInput("file", NULL,
                 multiple = FALSE,
                 accept = c('text/csv', 
@@ -42,9 +42,18 @@ fluidPage(
                            '.csv'))
     ),
     column(
-      width = 4,
+      width = 6,
       align = "center",
       uiOutput("showjump")
+    )
+  ),
+  fluidRow(
+    h1("Data Preview", id = "window"),
+    p("You can see the first five rows of your data as well as the variable types to verify whether your data is properly formatted."),
+    column(
+      width = 12,
+      DTOutput("datapreview"),
+      DTOutput("datatype")
     )
   )
 ) #close fluidpage

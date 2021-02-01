@@ -68,15 +68,41 @@ ADDIS_spending_Server <- function(input, output, session, data) {
     }
     )
     
+    observeEvent(input$boundnum, {
+      if(str_detect(input$boundnum, "[a-zA-Z\\,\\-]+")) {
+        showFeedbackDanger(
+          inputId = "boundnum",
+          text = "Value not a number",
+          icon = NULL
+        )
+      } else {
+        hideFeedback("boundnum")
+      }
+    }, ignoreNULL = FALSE
+    )
+    
     if(!is.null(data())){
       shiny::showModal(modalDialog("For datasets with more than 50,000 p-values, expect a runtime between 5 and 30 seconds..."))
     }
     
-    out <- ADDIS_spending(d = data(),
-                          alpha = alpha,
-                          lambda = lambda,
-                          tau = tau,
-                          dep = dep)
+    if(input$boundnum == 0) {
+      out <- ADDIS_spending(d = data(),
+                            alpha = alpha,
+                            lambda = lambda,
+                            tau = tau,
+                            dep = dep)
+    } else {
+      boundnum = as.numeric(input$boundnum)
+      gammai <- setBound("ADDIS_spending", N = boundnum)
+      out <- ADDIS_spending(d = data(),
+                            alpha = alpha,
+                            gammai = gammai,
+                            lambda = lambda,
+                            tau = tau,
+                            dep = dep)
+    }
+    
+    
     shiny::removeModal()
     
     out
@@ -99,6 +125,10 @@ ADDIS_spending_Server <- function(input, output, session, data) {
     toggle(id = "advopt", condition = input$checkbox)
   })
   
+  observe({
+    toggle(id = "boundtoggle", condition = input$bound)
+  })
+  
   #record user params
   ADDIS_spending_params <- reactive({
     params <- reactiveValuesToList(input)
@@ -108,10 +138,10 @@ ADDIS_spending_Server <- function(input, output, session, data) {
     ) %>%
       filter(param != "go")
   })
-
+  
   # remove placeholder text
   observeEvent(input$go, {
-
+    
     if(input$go == 0){
       shinyjs::show(id = "placeholder")
       shinyjs::show(id = "placeholder2")
@@ -125,10 +155,10 @@ ADDIS_spending_Server <- function(input, output, session, data) {
     }
     
   })
-
+  
   # Output error messages
   observeEvent(input$go, {
-
+    
     if(!is.null(data())){
       tryCatch({
         ADDIS_spending_res()
@@ -171,13 +201,36 @@ Alpha_spending_Server <- function(input, output, session, data) {
     }, ignoreNULL = FALSE
     )
     
+    observeEvent(input$boundnum, {
+      if(str_detect(input$boundnum, "[a-zA-Z\\,\\-]+")) {
+        showFeedbackDanger(
+          inputId = "boundnum",
+          text = "Value not a number",
+          icon = NULL
+        )
+      } else {
+        hideFeedback("boundnum")
+      }
+    }, ignoreNULL = FALSE
+    )
+    
     if(!is.null(data())){
       shiny::showModal(modalDialog("For datasets with more than 50,000 p-values, expect a runtime between 5 and 30 seconds..."))
     }
     
-    out <- Alpha_spending(d = data(),
-                          alpha = alpha,
-                          random = random)
+    if(input$boundnum == 0) {
+      out <- Alpha_spending(d = data(),
+                            alpha = alpha,
+                            random = random)
+    } else {
+      boundnum = as.numeric(input$boundnum)
+      gammai <- setBound("Alpha_spending", N = boundnum)
+      out <- Alpha_spending(d = data(),
+                            alpha = alpha,
+                            gammai = gammai,
+                            random = random)
+    }
+    
     shiny::removeModal()
     
     out
@@ -195,6 +248,10 @@ Alpha_spending_Server <- function(input, output, session, data) {
   #toggle advanced options
   observe({
     toggle(id = "advopt", condition = input$checkbox)
+  })
+  
+  observe({
+    toggle(id = "boundtoggle", condition = input$bound)
   })
   
   #record user params
@@ -269,13 +326,36 @@ online_fallback_Server <- function(input, output, session, data) {
     }, ignoreNULL = FALSE
     )
     
+    observeEvent(input$boundnum, {
+      if(str_detect(input$boundnum, "[a-zA-Z\\,\\-]+")) {
+        showFeedbackDanger(
+          inputId = "boundnum",
+          text = "Value not a number",
+          icon = NULL
+        )
+      } else {
+        hideFeedback("boundnum")
+      }
+    }, ignoreNULL = FALSE
+    )
+    
     if(!is.null(data())){
       shiny::showModal(modalDialog("For datasets with more than 50,000 p-values, expect a runtime between 5 and 30 seconds..."))
     }
     
-    out <- online_fallback(d = data(),
-                           alpha = alpha,
-                           random = random)
+    if(input$boundnum == 0) {
+      out <- online_fallback(d = data(),
+                             alpha = alpha,
+                             random = random)
+    } else {
+      boundnum = as.numeric(input$boundnum)
+      gammai <- setBound("online_fallback", N = boundnum)
+      out <- online_fallback(d = data(),
+                             alpha = alpha,
+                             gammai = gammai,
+                             random = random)
+    }
+    
     shiny::removeModal()
     
     out
@@ -293,6 +373,10 @@ online_fallback_Server <- function(input, output, session, data) {
   #toggle advanced options
   observe({
     toggle(id = "advopt", condition = input$checkbox)
+  })
+  
+  observe({
+    toggle(id = "boundtoggle", condition = input$bound)
   })
   
   #record user params
@@ -347,9 +431,9 @@ ADDIS_spending_countServer <- function(input, output, session, ADDIS_spending_re
   observe({
     toggle(id = "downloadbutton")
   })
-
+  
   output$count <- renderUI({
-
+    
     data <- ADDIS_spending_result$ADDIS_spending_res()
     if(sum(data$R) == 1) {
       div(
@@ -388,7 +472,7 @@ ADDIS_spending_countServer <- function(input, output, session, ADDIS_spending_re
       )
     }
   })
-
+  
   output$download <- downloadHandler(
     filename = function() {
       paste("ADDIS_spending-", Sys.Date(), ".zip", sep = "")
