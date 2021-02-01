@@ -118,6 +118,8 @@ ADDIS_spending_Server <- function(input, output, session, data) {
     updateTextInput(session, "lambda", value = 0.25)
     updateTextInput(session, "tau", value = 0.5)
     updateSwitchInput(session, "dep", value = FALSE)
+    updateSwitchInput(session, "bound", value = FALSE)
+    updateTextInput(session, "boundnum", value = 0)
   })
   
   #toggle advanced options
@@ -243,6 +245,8 @@ Alpha_spending_Server <- function(input, output, session, data) {
   observeEvent(input$reset, {
     updateTextInput(session, "alpha", value = 0.05)
     updateSwitchInput(session, "random", value = TRUE)
+    updateSwitchInput(session, "bound", value = FALSE)
+    updateTextInput(session, "boundnum", value = 0)
   })
   
   #toggle advanced options
@@ -368,6 +372,8 @@ online_fallback_Server <- function(input, output, session, data) {
   observeEvent(input$reset, {
     updateTextInput(session, "alpha", value = 0.05)
     updateSwitchInput(session, "random", value = TRUE)
+    updateSwitchInput(session, "bound", value = FALSE)
+    updateTextInput(session, "boundnum", value = 0)
   })
   
   #toggle advanced options
