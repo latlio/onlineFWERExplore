@@ -20,7 +20,6 @@ ADDIS_spending_Server <- function(input, output, session, data) {
     alpha = as.numeric(input$alpha)
     lambda = as.numeric(input$lambda)
     tau = as.numeric(input$tau)
-    dep = ifelse(input$dep == "True", T, F)
     
     #provide user feedback
     observeEvent(input$alpha, {
@@ -69,7 +68,7 @@ ADDIS_spending_Server <- function(input, output, session, data) {
     )
     
     observeEvent(input$boundnum, {
-      if(str_detect(input$boundnum, "[a-zA-Z\\,\\-]+")) {
+      if(as.numeric(input$boundnum) <= 0 | str_detect(input$boundnum, "[a-zA-Z\\,\\-]+")) {
         showFeedbackDanger(
           inputId = "boundnum",
           text = "Value not a number",
@@ -85,23 +84,26 @@ ADDIS_spending_Server <- function(input, output, session, data) {
       shiny::showModal(modalDialog("For datasets with more than 50,000 p-values, expect a runtime between 5 and 30 seconds..."))
     }
     
-    if(input$boundnum == 0) {
+    if(!input$algbound) {
       out <- ADDIS_spending(d = data(),
                             alpha = alpha,
                             lambda = lambda,
                             tau = tau,
-                            dep = dep)
+                            dep = input$dep)
+    } else if (input$algbound & input$boundnum < nrow(data())) {
+      shiny::showNotification(paste0("Please input a bound greater than or equal to the number of p-values in your data. The default dataset has 15 p-values."), type = "err", duration = NULL)
+      
+      out <- NULL
     } else {
-      boundnum = as.numeric(input$boundnum)
+      boundnum <- as.numeric(input$boundnum)
       gammai <- setBound("ADDIS_spending", N = boundnum)
       out <- ADDIS_spending(d = data(),
                             alpha = alpha,
                             gammai = gammai,
                             lambda = lambda,
                             tau = tau,
-                            dep = dep)
+                            dep = input$dep)
     }
-    
     
     shiny::removeModal()
     
@@ -110,7 +112,9 @@ ADDIS_spending_Server <- function(input, output, session, data) {
     bindCache(input$alpha,
               input$lambda,
               input$tau,
-              input$dep) %>%
+              input$dep,
+              input$algbound,
+              input$boundnum) %>%
     bindEvent(input$go)
   
   observeEvent(input$reset, {
@@ -118,8 +122,8 @@ ADDIS_spending_Server <- function(input, output, session, data) {
     updateTextInput(session, "lambda", value = 0.25)
     updateTextInput(session, "tau", value = 0.5)
     updateSwitchInput(session, "dep", value = FALSE)
-    updateSwitchInput(session, "bound", value = FALSE)
-    updateTextInput(session, "boundnum", value = 0)
+    updateSwitchInput(session, "algbound", value = FALSE)
+    updateTextInput(session, "boundnum", value = nrow(data()))
   })
   
   #toggle advanced options
@@ -128,7 +132,13 @@ ADDIS_spending_Server <- function(input, output, session, data) {
   })
   
   observe({
-    toggle(id = "boundtoggle", condition = input$bound)
+    toggle(id = "boundtoggle", condition = input$algbound)
+  })
+  
+  observeEvent(input$algbound, {
+    if(input$algbound == FALSE) {
+      updateTextInput(session, "boundnum", value = nrow(data()))
+    }
   })
   
   #record user params
@@ -182,7 +192,6 @@ Alpha_spending_Server <- function(input, output, session, data) {
     
     #check parameters
     alpha = as.numeric(input$alpha)
-    random = ifelse(input$random == "True", T, F)
     seed = as.numeric(input$seed)
     
     set.seed(seed)
@@ -220,17 +229,21 @@ Alpha_spending_Server <- function(input, output, session, data) {
       shiny::showModal(modalDialog("For datasets with more than 50,000 p-values, expect a runtime between 5 and 30 seconds..."))
     }
     
-    if(input$boundnum == 0) {
+    if(!input$algbound) {
       out <- Alpha_spending(d = data(),
                             alpha = alpha,
-                            random = random)
+                            random = input$random)
+    } else if (input$algbound & input$boundnum < nrow(data())) {
+      shiny::showNotification(paste0("Please input a bound greater than or equal to the number of p-values in your data. The default dataset has 15 p-values."), type = "err", duration = NULL)
+      
+      out <- NULL
     } else {
-      boundnum = as.numeric(input$boundnum)
+      boundnum <- as.numeric(input$boundnum)
       gammai <- setBound("Alpha_spending", N = boundnum)
       out <- Alpha_spending(d = data(),
                             alpha = alpha,
                             gammai = gammai,
-                            random = random)
+                            random = input$random)
     }
     
     shiny::removeModal()
@@ -239,13 +252,15 @@ Alpha_spending_Server <- function(input, output, session, data) {
   }) %>% #close eventReactive
     bindCache(input$alpha,
               input$random,
-              input$seed) %>%
+              input$seed,
+              input$algbound,
+              input$boundnum) %>%
     bindEvent(input$go)
   
   observeEvent(input$reset, {
     updateTextInput(session, "alpha", value = 0.05)
     updateSwitchInput(session, "random", value = TRUE)
-    updateSwitchInput(session, "bound", value = FALSE)
+    updateSwitchInput(session, "algbound", value = FALSE)
     updateTextInput(session, "boundnum", value = 0)
   })
   
@@ -255,7 +270,13 @@ Alpha_spending_Server <- function(input, output, session, data) {
   })
   
   observe({
-    toggle(id = "boundtoggle", condition = input$bound)
+    toggle(id = "boundtoggle", condition = input$algbound)
+  })
+  
+  observeEvent(input$algbound, {
+    if(input$algbound == FALSE) {
+      updateTextInput(session, "boundnum", value = nrow(data()))
+    }
   })
   
   #record user params
@@ -309,7 +330,6 @@ online_fallback_Server <- function(input, output, session, data) {
     
     #check parameters
     alpha = as.numeric(input$alpha)
-    random = ifelse(input$random == "True", T, F)
     seed = as.numeric(input$seed)
     
     set.seed(seed)
@@ -331,7 +351,7 @@ online_fallback_Server <- function(input, output, session, data) {
     )
     
     observeEvent(input$boundnum, {
-      if(str_detect(input$boundnum, "[a-zA-Z\\,\\-]+")) {
+      if(as.numeric(input$boundnum) <= 0 | str_detect(input$boundnum, "[a-zA-Z\\,\\-]+")) {
         showFeedbackDanger(
           inputId = "boundnum",
           text = "Value not a number",
@@ -347,17 +367,21 @@ online_fallback_Server <- function(input, output, session, data) {
       shiny::showModal(modalDialog("For datasets with more than 50,000 p-values, expect a runtime between 5 and 30 seconds..."))
     }
     
-    if(input$boundnum == 0) {
+    if(!input$algbound) {
       out <- online_fallback(d = data(),
                              alpha = alpha,
-                             random = random)
+                             random = input$random)
+    } else if (input$algbound & input$boundnum < nrow(data())) {
+      shiny::showNotification(paste0("Please input a bound greater than or equal to the number of p-values in your data. The default dataset has 15 p-values."), type = "err", duration = NULL)
+      
+      out <- NULL
     } else {
-      boundnum = as.numeric(input$boundnum)
+      boundnum <- as.numeric(input$boundnum)
       gammai <- setBound("online_fallback", N = boundnum)
       out <- online_fallback(d = data(),
                              alpha = alpha,
                              gammai = gammai,
-                             random = random)
+                             random = input$random)
     }
     
     shiny::removeModal()
@@ -366,14 +390,16 @@ online_fallback_Server <- function(input, output, session, data) {
   }) %>% #close eventReactive
     bindCache(input$alpha,
               input$random,
-              input$seed) %>%
+              input$seed,
+              input$algbound,
+              input$boundnum) %>%
     bindEvent(input$go)
   
   observeEvent(input$reset, {
     updateTextInput(session, "alpha", value = 0.05)
     updateSwitchInput(session, "random", value = TRUE)
-    updateSwitchInput(session, "bound", value = FALSE)
-    updateTextInput(session, "boundnum", value = 0)
+    updateSwitchInput(session, "algbound", value = FALSE)
+    updateTextInput(session, "boundnum", value = nrow(data()))
   })
   
   #toggle advanced options
@@ -382,7 +408,13 @@ online_fallback_Server <- function(input, output, session, data) {
   })
   
   observe({
-    toggle(id = "boundtoggle", condition = input$bound)
+    toggle(id = "boundtoggle", condition = input$algbound)
+  })
+  
+  observeEvent(input$algbound, {
+    if(input$algbound == FALSE) {
+      updateTextInput(session, "boundnum", value = nrow(data()))
+    }
   })
   
   #record user params
@@ -490,7 +522,7 @@ ADDIS_spending_countServer <- function(input, output, session, ADDIS_spending_re
       
       filename <- paste("ADDIS_spending-", Sys.Date(), ".csv", sep = "")
       write_csv(ADDIS_spending_result$ADDIS_spending_res(), filename)
-      filename2 <- paste("ADDIS_spending-", Sys.Date(), ".csv", sep = "")
+      filename2 <- paste("ADDIS_spending-params-", Sys.Date(), ".csv", sep = "")
       write_csv(ADDIS_spending_result$ADDIS_spending_params(), filename2)
       R_session <- paste("ADDIS_spending-", Sys.Date(), "sessioninfo.txt", sep = "")
       writeLines(capture.output(sessionInfo()), R_session)
@@ -558,7 +590,7 @@ Alpha_spending_countServer <- function(input, output, session, Alpha_spending_re
       
       filename <- paste("Alpha_spending-", Sys.Date(), ".csv", sep = "")
       write_csv(Alpha_spending_result$Alpha_spending_res(), filename)
-      filename2 <- paste("Alpha_spending-", Sys.Date(), ".csv", sep = "")
+      filename2 <- paste("Alpha_spending-params-", Sys.Date(), ".csv", sep = "")
       write_csv(Alpha_spending_result$Alpha_spending_params(), filename2)
       R_session <- paste("Alpha_spending-", Sys.Date(), "sessioninfo.txt", sep = "")
       writeLines(capture.output(sessionInfo()), R_session)
@@ -626,7 +658,7 @@ online_fallback_countServer <- function(input, output, session, online_fallback_
       
       filename <- paste("online_fallback-", Sys.Date(), ".csv", sep = "")
       write_csv(online_fallback_result$online_fallback_res(), filename)
-      filename2 <- paste("online_fallback-", Sys.Date(), ".csv", sep = "")
+      filename2 <- paste("online_fallback-params-", Sys.Date(), ".csv", sep = "")
       write_csv(online_fallback_result$online_fallback_params(), filename2)
       R_session <- paste("online_fallback-", Sys.Date(), "sessioninfo.txt", sep = "")
       writeLines(capture.output(sessionInfo()), R_session)
