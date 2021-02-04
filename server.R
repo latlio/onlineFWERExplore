@@ -25,21 +25,25 @@ server <- function(input, output, session) {
   guide$init()$start()
   
   #Load in data
+  #Load in data
   in_data <- reactive({
-    req(input$file)
-
-    ext <- tools::file_ext(input$file$name)
-    shiny::validate(need(ext %in% c(
-      'text/csv',
-      'text/comma-separated-values',
-      'text/tab-separated-values',
-      'text/plain',
-      'csv',
-      'tsv'), 
-      "Please upload a csv file!"))
-
-    data <- read_csv(input$file$datapath) %>%
-      dplyr::mutate(across(any_of("date"), ~as.Date(.x, format = "%m/%d/%y")))
+    if(is.null(input$file)) {
+      data <- read_csv("data/sample.csv")
+    } else {
+      req(input$file)
+      ext <- tools::file_ext(input$file$name)
+      shiny::validate(need(ext %in% c(
+        'text/csv',
+        'text/comma-separated-values',
+        'text/tab-separated-values',
+        'text/plain',
+        'csv',
+        'tsv'), 
+        "Please upload a csv file!"))
+      
+      data <- read_csv(input$file$datapath) %>%
+        mutate(across(any_of("date"), ~as.Date(.x, format = "%m/%d/%y")))
+    }
   })
   
   #warning if wrong file type
@@ -56,6 +60,27 @@ server <- function(input, output, session) {
                               duration = NULL)
     }
   })
+  
+  #data preview
+  output$datapreview <- renderDT(
+    head(in_data(), 5),
+    options = list(info = F,
+                   lengthChange = F,
+                   ordering = F,
+                   paging = F,
+                   searching = F)
+  )
+  
+  output$datatype <- renderDT(
+    in_data() %>%
+      summarize(across(everything(), class)) %>%
+      pivot_longer(everything(), names_to = "variable", values_to = "type"),
+    options = list(info = F,
+                   lengthChange = F,
+                   ordering = F,
+                   paging = F,
+                   searching = F)
+  )
   
   #Dynamically display alg jump button ONLY when file is uploaded
   output$showjump <- renderUI({

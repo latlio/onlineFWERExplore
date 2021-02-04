@@ -14,19 +14,7 @@ shiny::fluidRow(
            title = strong("Online Fallback"),
            status = "primary",
            solidHeader = TRUE,
-           tags$style(HTML("
-.box.box-solid.box-primary>.box-header {
-  color:#ffffff;
-  background:#266EAB
-                    }
-
-.box.box-solid.box-primary{
-border-bottom-color#ffffff;
-border-left-color:#F7F7F7;
-border-right-color:#F7F7F7;
-border-top-color:#ffffff;
-}
-                                    ")),
+           tags$link(rel = "stylesheet", type = "text/css", href = "www/css/styles.css"),
            width = 12,
            online_fallback_UI("inputonline_fallback")
          )

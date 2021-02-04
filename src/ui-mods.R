@@ -21,13 +21,6 @@ ADDIS_spending_UI <- function(id) {
                        "Overall significance level of the FDR procedure",
                        placement = "right",
                        trigger = "hover"),
-    shiny::textInput(ns("seed"), 
-                     "Seed:",
-                     width = 80, value = 1),
-    shinyBS::bsTooltip(ns("seed"),
-                       "Remember your number as this will let you access the same results in the future.",
-                       placement = "right",
-                       trigger = "hover"),
     div(style="display: inline-block;vertical-align:top; width: 200px;",
         strong(HTML(paste("Click for advanced options"))),
         prettyCheckbox(ns("checkbox"),
@@ -46,9 +39,9 @@ ADDIS_spending_UI <- function(id) {
             tags$strong("Lambda:"),
             shiny::textInput(ns("lambda"), NULL, width = 80, value = 0.25, placeholder = ".25"),
             shinyBS::bsTooltip(ns("lambda"),
-                           "Optional threshold for a candidate hypothesis",
-                           placement = "right",
-                           trigger = "hover")),
+                               "Optional threshold for a candidate hypothesis",
+                               placement = "right",
+                               trigger = "hover")),
         div(style="display: inline-block;vertical-align:top; width: 200px;",
             tags$strong("Tau:"),
             shiny::textInput(ns("tau"), NULL, width = 80, value = 0.5, placeholder = ".5"),
@@ -70,11 +63,46 @@ ADDIS_spending_UI <- function(id) {
                            "Your p-values are dependent.",
                            placement = "right",
                            trigger = "hover"),
+        div(style="display: inline-block;vertical-align:top; width: 200px;",
+            tags$strong(id = ns("label_bound"),
+                        "Bound:"),
+            shinyWidgets::switchInput(ns("algbound"), 
+                                      NULL, 
+                                      value = FALSE,
+                                      onLabel = "True",
+                                      offLabel = "False",
+                                      width = "80px"),
+            shinyBS::bsTooltip(ns("label_bound"),
+                               "The default unbounded uses the number of p-values in your data. Setting bound to TRUE will allow you to set an upper bound for the number of hypotheses.",
+                               placement = "right",
+                               trigger = "hover")
+        ),
+        
+        shinyjs::hidden(
+          div(
+            id = ns("boundtoggle"),
+            div(style="display: inline-block;vertical-align:top; width: 200px;",
+                tags$strong("Number of hypotheses"),
+                shiny::textInput(ns("boundnum"),
+                                 NULL,
+                                 value = 100,
+                                 placeholder = "No bound",
+                                 width = 80))
+          )
+        )
       ) #close div
-    ),
+    ), #close div
     shinyWidgets::actionBttn(
       inputId = ns("go"),
       label = "Calculate", 
+      style = "fill",
+      color = "success"
+    ),
+    br(),
+    br(),
+    shinyWidgets::actionBttn(
+      inputId = ns("reset"),
+      label = "Reset Inputs",
       style = "fill",
       color = "success"
     )
@@ -131,11 +159,46 @@ Alpha_spending_UI <- function(id) {
                            "The order of p-values in each batch is randomized.",
                            placement = "right",
                            trigger = "hover"),
+        div(style="display: inline-block;vertical-align:top; width: 200px;",
+            tags$strong(id = ns("label_bound"),
+                        "Bound:"),
+            shinyWidgets::switchInput(ns("algbound"), 
+                                      NULL, 
+                                      value = FALSE,
+                                      onLabel = "True",
+                                      offLabel = "False",
+                                      width = "80px"),
+            shinyBS::bsTooltip(ns("label_bound"),
+                               "The default unbounded uses the number of p-values in your data. Setting bound to TRUE will allow you to set an upper bound for the number of hypotheses.",
+                               placement = "right",
+                               trigger = "hover")
+        ),
+        
+        shinyjs::hidden(
+          div(
+            id = ns("boundtoggle"),
+            div(style="display: inline-block;vertical-align:top; width: 200px;",
+                tags$strong("Number of hypotheses"),
+                shiny::textInput(ns("boundnum"),
+                                 NULL,
+                                 value = 100,
+                                 placeholder = "No bound",
+                                 width = 80))
+          )
+        )
       ) #close div
     ),
     shinyWidgets::actionBttn(
       inputId = ns("go"),
       label = "Calculate", 
+      style = "fill",
+      color = "success"
+    ),
+    br(),
+    br(),
+    shinyWidgets::actionBttn(
+      inputId = ns("reset"),
+      label = "Reset Inputs",
       style = "fill",
       color = "success"
     )
@@ -192,11 +255,46 @@ online_fallback_UI <- function(id) {
                            "The order of p-values in each batch is randomized.",
                            placement = "right",
                            trigger = "hover"),
+        div(style="display: inline-block;vertical-align:top; width: 200px;",
+            tags$strong(id = ns("label_bound"),
+                        "Bound:"),
+            shinyWidgets::switchInput(ns("algbound"), 
+                                      NULL, 
+                                      value = FALSE,
+                                      onLabel = "True",
+                                      offLabel = "False",
+                                      width = "80px"),
+            shinyBS::bsTooltip(ns("label_bound"),
+                               "The default unbounded uses the number of p-values in your data. Setting bound to TRUE will allow you to set an upper bound for the number of hypotheses.",
+                               placement = "right",
+                               trigger = "hover")
+        ),
+        
+        shinyjs::hidden(
+          div(
+            id = ns("boundtoggle"),
+            div(style="display: inline-block;vertical-align:top; width: 200px;",
+                tags$strong("Number of hypotheses"),
+                shiny::textInput(ns("boundnum"),
+                                 NULL,
+                                 value = 100,
+                                 placeholder = "No bound",
+                                 width = 80))
+          )
+        )
       ) #close div
     ),
     shinyWidgets::actionBttn(
       inputId = ns("go"),
       label = "Calculate", 
+      style = "fill",
+      color = "success"
+    ),
+    br(),
+    br(),
+    shinyWidgets::actionBttn(
+      inputId = ns("reset"),
+      label = "Reset Inputs",
       style = "fill",
       color = "success"
     )
@@ -227,10 +325,10 @@ summaryUI <- function(id) {
 
 compareUI <- function(id) {
   ns <- NS(id)
-
+  
   tagList(
     br(),
-    p("Make sure you already clicked Calculate. Clicking the 'Compare' button compares the results of two algorithms. Parameters for the selected algorithm are assumed to be same as those for the current algorithm, otherwise they are set to the default values (see Help)."),
+    p("To use this feature, first click 'Reset Inputs'. Make sure you have already clicked 'Calculate'. This feature compares the results of two algorithms at their default settings. Changing any inputs will result in an unfair and nonsensical comparison. Note that for datasets with more than 50,000 p-values, expect a runtime between 30 seconds and 1 minute."),
     column(width = 12,
            align = "center",
            div(style = "display: inline-block;vertical-align:top;text-align:center",
@@ -261,7 +359,7 @@ plotUI <- function(id) {
     br(),
     uiOutput(ns("num"))
   )
-
+  
 }
 
 set_html_breaks <- function(n) {

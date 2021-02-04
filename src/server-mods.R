@@ -13,17 +13,20 @@ set_html_breaks <- function(n) {
 ADDIS_spending_Server <- function(input, output, session, data) {
   ns <- session$ns
   
+  observeEvent(input$algbound, {
+    updateTextInput(session, "boundnum", value = nrow(data()))
+  })
+  
   # Run ADDIS spending algorithm
   ADDIS_spending_res <- reactive({
     
     #check parameters
+    req(input$alpha)
     alpha = as.numeric(input$alpha)
+    req(input$lambda)
     lambda = as.numeric(input$lambda)
+    req(input$tau)
     tau = as.numeric(input$tau)
-    dep = ifelse(input$dep == "True", T, F)
-    seed = as.numeric(input$seed)
-    
-    set.seed(seed)
     
     #provide user feedback
     observeEvent(input$alpha, {
@@ -44,7 +47,7 @@ ADDIS_spending_Server <- function(input, output, session, data) {
     observeEvent(input$lambda, {
       req(input$lambda)
       if(as.numeric(input$lambda) > 1 | as.numeric(input$lambda) <= 0 |
-         str_detect(input$alpha, "[a-zA-Z\\,\\-]+")) {
+         str_detect(input$lambda, "[a-zA-Z\\,\\-]+")) {
         showFeedbackDanger(
           inputId = "lambda",
           text = "Value not between 0 and 1",
@@ -71,15 +74,44 @@ ADDIS_spending_Server <- function(input, output, session, data) {
     }
     )
     
+    observeEvent(input$boundnum, {
+      if(as.numeric(input$boundnum) <= 0 | str_detect(input$boundnum, "[a-zA-Z\\,\\-]+")) {
+        showFeedbackDanger(
+          inputId = "boundnum",
+          text = "Value not a positive number",
+          icon = NULL
+        )
+      } else {
+        hideFeedback("boundnum")
+      }
+    }, ignoreNULL = FALSE
+    )
+    
     if(!is.null(data())){
-      # shiny::showModal(modalDialog("Running algorithm..."))
+      shiny::showModal(modalDialog("For datasets with more than 50,000 p-values, expect a runtime between 5 and 30 seconds..."))
     }
     
-    out <- ADDIS_spending(d = data(),
-                          alpha = alpha,
-                          lambda = lambda,
-                          tau = tau,
-                          dep = dep)
+    if(!input$algbound) {
+      out <- ADDIS_spending(d = data(),
+                            alpha = alpha,
+                            lambda = lambda,
+                            tau = tau,
+                            dep = input$dep)
+    } else if (input$algbound & input$boundnum < nrow(data())) {
+      shiny::showNotification(paste0("Please input a bound greater than or equal to the number of p-values in your data. The default dataset has 15 p-values."), type = "err", duration = NULL)
+      
+      out <- NULL
+    } else {
+      boundnum <- as.numeric(input$boundnum)
+      gammai <- setBound("ADDIS_spending", N = boundnum)
+      out <- ADDIS_spending(d = data(),
+                            alpha = alpha,
+                            gammai = gammai,
+                            lambda = lambda,
+                            tau = tau,
+                            dep = input$dep)
+    }
+    
     shiny::removeModal()
     
     out
@@ -87,12 +119,33 @@ ADDIS_spending_Server <- function(input, output, session, data) {
     bindCache(input$alpha,
               input$lambda,
               input$tau,
-              input$dep) %>%
+              input$dep,
+              input$algbound,
+              input$boundnum) %>%
     bindEvent(input$go)
+  
+  observeEvent(input$reset, {
+    updateTextInput(session, "alpha", value = 0.05)
+    updateTextInput(session, "lambda", value = 0.25)
+    updateTextInput(session, "tau", value = 0.5)
+    updateSwitchInput(session, "dep", value = FALSE)
+    updateSwitchInput(session, "algbound", value = FALSE)
+    updateTextInput(session, "boundnum", value = nrow(data()))
+  })
   
   #toggle advanced options
   observe({
     toggle(id = "advopt", condition = input$checkbox)
+  })
+  
+  observe({
+    toggle(id = "boundtoggle", condition = input$algbound)
+  })
+  
+  observeEvent(input$algbound, {
+    if(input$algbound == FALSE) {
+      updateTextInput(session, "boundnum", value = nrow(data()))
+    }
   })
   
   #record user params
@@ -104,10 +157,10 @@ ADDIS_spending_Server <- function(input, output, session, data) {
     ) %>%
       filter(param != "go")
   })
-
+  
   # remove placeholder text
   observeEvent(input$go, {
-
+    
     if(input$go == 0){
       shinyjs::show(id = "placeholder")
       shinyjs::show(id = "placeholder2")
@@ -121,10 +174,10 @@ ADDIS_spending_Server <- function(input, output, session, data) {
     }
     
   })
-
+  
   # Output error messages
   observeEvent(input$go, {
-
+    
     if(!is.null(data())){
       tryCatch({
         ADDIS_spending_res()
@@ -136,18 +189,24 @@ ADDIS_spending_Server <- function(input, output, session, data) {
   })
   
   list(ADDIS_spending_res = ADDIS_spending_res,
-       ADDIS_spending_params = ADDIS_spending_params)
+       ADDIS_spending_params = ADDIS_spending_params,
+       alpha = reactive(as.numeric(input$alpha)))
 }
 Alpha_spending_Server <- function(input, output, session, data) {
   ns <- session$ns
+  
+  observeEvent(input$algbound, {
+    updateTextInput(session, "boundnum", value = nrow(data()))
+  })
   
   # Run Alpha spending algorithm
   Alpha_spending_res <- reactive({
     
     #check parameters
     alpha = as.numeric(input$alpha)
-    random = ifelse(input$random == "True", T, F)
+    req(input$alpha)
     seed = as.numeric(input$seed)
+    req(input$seed)
     
     set.seed(seed)
     
@@ -167,23 +226,64 @@ Alpha_spending_Server <- function(input, output, session, data) {
     }, ignoreNULL = FALSE
     )
     
+    observeEvent(input$boundnum, {
+      if(as.numeric(input$boundnum) <= 0 | str_detect(input$boundnum, "[a-zA-Z\\,\\-]+")) {
+        showFeedbackDanger(
+          inputId = "boundnum",
+          text = "Value not a positive number",
+          icon = NULL
+        )
+      } else {
+        hideFeedback("boundnum")
+      }
+    }, ignoreNULL = FALSE
+    )
+    
     if(!is.null(data())){
-      # shiny::showModal(modalDialog("Running algorithm..."))
+      shiny::showModal(modalDialog("For datasets with more than 50,000 p-values, expect a runtime between 5 and 30 seconds..."))
     }
     
-    out <- Alpha_spending(d = data(),
-                          alpha = alpha,
-                          random = random)
+    if(!input$algbound) {
+      out <- Alpha_spending(d = data(),
+                            alpha = alpha,
+                            random = input$random)
+    } else if (input$algbound & as.numeric(input$boundnum) < nrow(data())) {
+      shiny::showNotification(paste0("Please input a bound greater than or equal to the number of p-values in your data. The default dataset has 15 p-values."), type = "err", duration = NULL)
+      
+      out <- NULL
+    } else {
+      gammai <- setBound("Alpha_spending", N = as.numeric(input$boundnum))
+      out <- Alpha_spending(d = data(),
+                            alpha = alpha,
+                            gammai = gammai,
+                            random = input$random)
+    }
+    
     shiny::removeModal()
     
     out
-  }) %>% #close eventReactive
+  }) %>% 
     bindCache(input$alpha,
-              input$random) %>%
+              input$random,
+              input$seed,
+              input$algbound,
+              input$boundnum) %>%
     bindEvent(input$go)
+  
+  observeEvent(input$reset, {
+    updateTextInput(session, "alpha", value = 0.05)
+    updateSwitchInput(session, "random", value = TRUE)
+    updateSwitchInput(session, "algbound", value = FALSE)
+    updateTextInput(session, "boundnum", value = nrow(data()))
+  })
+  
   #toggle advanced options
   observe({
     toggle(id = "advopt", condition = input$checkbox)
+  })
+  
+  observe({
+    toggle(id = "boundtoggle", condition = input$algbound)
   })
   
   #record user params
@@ -227,18 +327,24 @@ Alpha_spending_Server <- function(input, output, session, data) {
   })
   
   list(Alpha_spending_res = Alpha_spending_res,
-       Alpha_spending_params = Alpha_spending_params)
+       Alpha_spending_params = Alpha_spending_params,
+       alpha = reactive(as.numeric(input$alpha)))
 }
 online_fallback_Server <- function(input, output, session, data) {
   ns <- session$ns
+  
+  observeEvent(input$algbound, {
+    updateTextInput(session, "boundnum", value = nrow(data()))
+  })
   
   # Run online fallback algorithm
   online_fallback_res <- reactive({
     
     #check parameters
     alpha = as.numeric(input$alpha)
-    random = ifelse(input$random == "True", T, F)
+    req(input$alpha)
     seed = as.numeric(input$seed)
+    req(input$seed)
     
     set.seed(seed)
     
@@ -258,24 +364,64 @@ online_fallback_Server <- function(input, output, session, data) {
     }, ignoreNULL = FALSE
     )
     
+    observeEvent(input$boundnum, {
+      if(as.numeric(input$boundnum) <= 0 | str_detect(input$boundnum, "[a-zA-Z\\,\\-]+")) {
+        showFeedbackDanger(
+          inputId = "boundnum",
+          text = "Value not a positive number",
+          icon = NULL
+        )
+      } else {
+        hideFeedback("boundnum")
+      }
+    }, ignoreNULL = FALSE
+    )
+    
     if(!is.null(data())){
-      # shiny::showModal(modalDialog("Running algorithm..."))
+      shiny::showModal(modalDialog("For datasets with more than 50,000 p-values, expect a runtime between 5 and 30 seconds..."))
     }
     
-    out <- online_fallback(d = data(),
-                           alpha = alpha,
-                           random = random)
+    if(!input$algbound) {
+      out <- online_fallback(d = data(),
+                             alpha = alpha,
+                             random = input$random)
+    } else if (input$algbound & as.numeric(input$boundnum) < nrow(data())) {
+      shiny::showNotification(paste0("Please input a bound greater than or equal to the number of p-values in your data. The default dataset has 15 p-values."), type = "err", duration = NULL)
+      
+      out <- NULL
+    } else {
+      gammai <- setBound("online_fallback", N = as.numeric(input$boundnum))
+      out <- online_fallback(d = data(),
+                             alpha = alpha,
+                             gammai = gammai,
+                             random = input$random)
+    }
+    
     shiny::removeModal()
     
     out
   }) %>% #close eventReactive
     bindCache(input$alpha,
-              input$random) %>%
+              input$random,
+              input$seed,
+              input$algbound,
+              input$boundnum) %>%
     bindEvent(input$go)
+  
+  observeEvent(input$reset, {
+    updateTextInput(session, "alpha", value = 0.05)
+    updateSwitchInput(session, "random", value = TRUE)
+    updateSwitchInput(session, "algbound", value = FALSE)
+    updateTextInput(session, "boundnum", value = nrow(data()))
+  })
   
   #toggle advanced options
   observe({
     toggle(id = "advopt", condition = input$checkbox)
+  })
+  
+  observe({
+    toggle(id = "boundtoggle", condition = input$algbound)
   })
   
   #record user params
@@ -319,7 +465,8 @@ online_fallback_Server <- function(input, output, session, data) {
   })
   
   list(online_fallback_res = online_fallback_res,
-       online_fallback_params = online_fallback_params)
+       online_fallback_params = online_fallback_params,
+       alpha = reactive(as.numeric(input$alpha)))
 }
 
 #### COUNT SERVERS ####
@@ -330,9 +477,9 @@ ADDIS_spending_countServer <- function(input, output, session, ADDIS_spending_re
   observe({
     toggle(id = "downloadbutton")
   })
-
+  
   output$count <- renderUI({
-
+    
     data <- ADDIS_spending_result$ADDIS_spending_res()
     if(sum(data$R) == 1) {
       div(
@@ -371,7 +518,7 @@ ADDIS_spending_countServer <- function(input, output, session, ADDIS_spending_re
       )
     }
   })
-
+  
   output$download <- downloadHandler(
     filename = function() {
       paste("ADDIS_spending-", Sys.Date(), ".zip", sep = "")
@@ -383,7 +530,7 @@ ADDIS_spending_countServer <- function(input, output, session, ADDIS_spending_re
       
       filename <- paste("ADDIS_spending-", Sys.Date(), ".csv", sep = "")
       write_csv(ADDIS_spending_result$ADDIS_spending_res(), filename)
-      filename2 <- paste("ADDIS_spending-", Sys.Date(), ".csv", sep = "")
+      filename2 <- paste("ADDIS_spending-params-", Sys.Date(), ".csv", sep = "")
       write_csv(ADDIS_spending_result$ADDIS_spending_params(), filename2)
       R_session <- paste("ADDIS_spending-", Sys.Date(), "sessioninfo.txt", sep = "")
       writeLines(capture.output(sessionInfo()), R_session)
@@ -451,7 +598,7 @@ Alpha_spending_countServer <- function(input, output, session, Alpha_spending_re
       
       filename <- paste("Alpha_spending-", Sys.Date(), ".csv", sep = "")
       write_csv(Alpha_spending_result$Alpha_spending_res(), filename)
-      filename2 <- paste("Alpha_spending-", Sys.Date(), ".csv", sep = "")
+      filename2 <- paste("Alpha_spending-params-", Sys.Date(), ".csv", sep = "")
       write_csv(Alpha_spending_result$Alpha_spending_params(), filename2)
       R_session <- paste("Alpha_spending-", Sys.Date(), "sessioninfo.txt", sep = "")
       writeLines(capture.output(sessionInfo()), R_session)
@@ -519,7 +666,7 @@ online_fallback_countServer <- function(input, output, session, online_fallback_
       
       filename <- paste("online_fallback-", Sys.Date(), ".csv", sep = "")
       write_csv(online_fallback_result$online_fallback_res(), filename)
-      filename2 <- paste("online_fallback-", Sys.Date(), ".csv", sep = "")
+      filename2 <- paste("online_fallback-params-", Sys.Date(), ".csv", sep = "")
       write_csv(online_fallback_result$online_fallback_params(), filename2)
       R_session <- paste("online_fallback-", Sys.Date(), "sessioninfo.txt", sep = "")
       writeLines(capture.output(sessionInfo()), R_session)
@@ -536,8 +683,8 @@ ADDIS_spending_plotServer <- function(input, output, session, ADDIS_spending_res
     new_data <- ADDIS_spending_result$ADDIS_spending_res() %>%
       mutate(index = row_number(),
              ADDIS_spending = log(alphai),
-             Bonferroni = log(0.05/index),
-             Unadjusted = rep(log(0.05), nrow(.))) %>%
+             Bonferroni = log(ADDIS_spending_result$alpha()/index),
+             Unadjusted = rep(log(ADDIS_spending_result$alpha()), nrow(.))) %>%
       pivot_longer(cols = c(ADDIS_spending, Bonferroni, Unadjusted),
                    names_to = "adjustment",
                    values_to = "alpha")
@@ -566,14 +713,14 @@ ADDIS_spending_plotServer <- function(input, output, session, ADDIS_spending_res
       ),
       p(
         renderTextillate({
-          textillate(paste0("Bonferroni rejected ", sum(current_alg_data$pval <= 0.05/length(current_alg_data$pval)), " null hypotheses."), auto.start = TRUE) %>%
+          textillate(paste0("Bonferroni rejected ", sum(current_alg_data$pval <= ADDIS_spending_result$alpha()/length(current_alg_data$pval)), " null hypotheses."), auto.start = TRUE) %>%
             textillateIn(effect = "fadeInDown",
                          sync = T)
         })
       ),
       p(
         renderTextillate({
-          textillate(paste0("No adjustment rejected ", sum(current_alg_data$pval <= 0.05), " null hypotheses."), auto.start = TRUE) %>%
+          textillate(paste0("No adjustment rejected ", sum(current_alg_data$pval <= ADDIS_spending_result$alpha()), " null hypotheses."), auto.start = TRUE) %>%
             textillateIn(effect = "fadeInDown",
                          sync = T)
         })
@@ -591,8 +738,8 @@ Alpha_spending_plotServer <- function(input, output, session, Alpha_spending_res
     new_data <- Alpha_spending_result$Alpha_spending_res() %>%
       mutate(index = row_number(),
              Alpha_spending = log(alphai),
-             Bonferroni = log(0.05/index),
-             Unadjusted = rep(log(0.05), nrow(.))) %>%
+             Bonferroni = log(Alpha_spending_result$alpha()/index),
+             Unadjusted = rep(log(Alpha_spending_result$alpha()), nrow(.))) %>%
       pivot_longer(cols = c(Alpha_spending, Bonferroni, Unadjusted),
                    names_to = "adjustment",
                    values_to = "alpha")
@@ -621,14 +768,14 @@ Alpha_spending_plotServer <- function(input, output, session, Alpha_spending_res
       ),
       p(
         renderTextillate({
-          textillate(paste0("Bonferroni rejected ", sum(current_alg_data$pval <= 0.05/length(current_alg_data$pval)), " null hypotheses."), auto.start = TRUE) %>%
+          textillate(paste0("Bonferroni rejected ", sum(current_alg_data$pval <= Alpha_spending_result$alpha()/length(current_alg_data$pval)), " null hypotheses."), auto.start = TRUE) %>%
             textillateIn(effect = "fadeInDown",
                          sync = T)
         })
       ),
       p(
         renderTextillate({
-          textillate(paste0("No adjustment rejected ", sum(current_alg_data$pval <= 0.05), " null hypotheses."), auto.start = TRUE) %>%
+          textillate(paste0("No adjustment rejected ", sum(current_alg_data$pval <= Alpha_spending_result$alpha()), " null hypotheses."), auto.start = TRUE) %>%
             textillateIn(effect = "fadeInDown",
                          sync = T)
         })
@@ -646,8 +793,8 @@ online_fallback_plotServer <- function(input, output, session, online_fallback_r
     new_data <- online_fallback_result$online_fallback_res() %>%
       mutate(index = row_number(),
              online_fallback = log(alphai),
-             Bonferroni = log(0.05/index),
-             Unadjusted = rep(log(0.05), nrow(.))) %>%
+             Bonferroni = log(online_fallback_result$alpha()/index),
+             Unadjusted = rep(log(online_fallback_result$alpha()), nrow(.))) %>%
       pivot_longer(cols = c(online_fallback, Bonferroni, Unadjusted),
                    names_to = "adjustment",
                    values_to = "alpha")
@@ -676,14 +823,14 @@ online_fallback_plotServer <- function(input, output, session, online_fallback_r
       ),
       p(
         renderTextillate({
-          textillate(paste0("Bonferroni rejected ", sum(current_alg_data$pval <= 0.05/length(current_alg_data$pval)), " null hypotheses."), auto.start = TRUE) %>%
+          textillate(paste0("Bonferroni rejected ", sum(current_alg_data$pval <= online_fallback_result$alpha()/length(current_alg_data$pval)), " null hypotheses."), auto.start = TRUE) %>%
             textillateIn(effect = "fadeInDown",
                          sync = T)
         })
       ),
       p(
         renderTextillate({
-          textillate(paste0("No adjustment rejected ", sum(current_alg_data$pval <= 0.05), " null hypotheses."), auto.start = TRUE) %>%
+          textillate(paste0("No adjustment rejected ", sum(current_alg_data$pval <= online_fallback_result$alpha()), " null hypotheses."), auto.start = TRUE) %>%
             textillateIn(effect = "fadeInDown",
                          sync = T)
         })
@@ -739,7 +886,7 @@ ADDIS_spending_compServer <- function(input, output, session, ADDIS_spending_res
         layout(xaxis = ex, yaxis = why)
     }
   }) %>%
-    bindCache(data_to_plot() %>% slice_tail())
+    bindCache(data_to_plot() %>% slice(5))
   
   #to make compnum reactive
   select_alg_data <- eventReactive(input$compare, {
@@ -834,7 +981,7 @@ Alpha_spending_compServer <- function(input, output, session, Alpha_spending_res
         layout(xaxis = ex, yaxis = why)
     }
   }) %>%
-    bindCache(data_to_plot() %>% slice_tail())
+    bindCache(data_to_plot() %>% slice(5))
   
   #to make compnum reactive
   select_alg_data <- eventReactive(input$compare, {
@@ -929,7 +1076,7 @@ online_fallback_compServer <- function(input, output, session, online_fallback_r
         layout(xaxis = ex, yaxis = why)
     }
   }) %>%
-    bindCache(data_to_plot() %>% slice_tail())
+    bindCache(data_to_plot() %>% slice(5))
   
   #to make compnum reactive
   select_alg_data <- eventReactive(input$compare, {
