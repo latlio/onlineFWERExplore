@@ -125,8 +125,8 @@
       "Package": "bslib",
       "Version": "0.2.3.9000",
       "Source": "GitHub",
-      "Remotes": "rstudio/shiny, rstudio/rmarkdown",
       "RemoteType": "github",
+      "Remotes": "rstudio/shiny, rstudio/rmarkdown",
       "RemoteHost": "api.github.com",
       "RemoteRepo": "bslib",
       "RemoteUsername": "rstudio",
@@ -176,10 +176,10 @@
     },
     "cli": {
       "Package": "cli",
-      "Version": "2.2.0",
+      "Version": "2.3.0",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "3ef298932294b775fa0a3eeaa3a645b0"
+      "Hash": "26fb4f0871c8e5b84d77f6dc22f2ee0a"
     },
     "clipr": {
       "Package": "clipr",
@@ -211,10 +211,10 @@
     },
     "crayon": {
       "Package": "crayon",
-      "Version": "1.3.4",
+      "Version": "1.4.0",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "0d57bc8e27b7ba9e45dba825ebc0de6b"
+      "Hash": "fcff9126a4928a96c94e3df85b024899"
     },
     "crosstalk": {
       "Package": "crosstalk",
@@ -267,10 +267,10 @@
     },
     "dplyr": {
       "Package": "dplyr",
-      "Version": "1.0.3",
+      "Version": "1.0.4",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "365f8c3650ab95582e600f160fd5fb88"
+      "Hash": "01c82e3b053eb7660a8ace8d932265b8"
     },
     "ellipsis": {
       "Package": "ellipsis",
@@ -372,10 +372,10 @@
     },
     "hms": {
       "Package": "hms",
-      "Version": "0.5.3",
+      "Version": "1.0.0",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "726671f634529d470545f9fd1a9d1869"
+      "Hash": "bf552cdd96f5969873afdac7311c7d0d"
     },
     "htmltools": {
       "Package": "htmltools",
@@ -538,8 +538,8 @@
       "RemoteRepo": "onlineFDR",
       "RemoteUsername": "dsrobertson",
       "RemoteRef": "HEAD",
-      "RemoteSha": "a3ccbecf2f755e50e083ae82199737ffe57badd1",
-      "Hash": "f042a0abbcc275ca428fede6c7587e71"
+      "RemoteSha": "89eba3950d0aab7afe5bcb311cc8f6baf2da5c26",
+      "Hash": "713f15a768d3d958ca52a8749ed6213a"
     },
     "openssl": {
       "Package": "openssl",
@@ -760,16 +760,10 @@
     },
     "shiny": {
       "Package": "shiny",
-      "Version": "1.5.0.9007",
-      "Source": "GitHub",
-      "Remotes": "rstudio/htmltools, rstudio/sass, rstudio/bslib,\nrstudio/shinytest, r-lib/cachem",
-      "RemoteType": "github",
-      "RemoteHost": "api.github.com",
-      "RemoteRepo": "shiny",
-      "RemoteUsername": "rstudio",
-      "RemoteRef": "HEAD",
-      "RemoteSha": "036f923e05b7da06a107cf5943edb40fcb377c79",
-      "Hash": "8a77c4536ac9edbebcdf74c154f5deb1"
+      "Version": "1.6.0",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "6e3b6ae7fe02b5859e4bb277f218b8ae"
     },
     "shinyBS": {
       "Package": "shinyBS",
